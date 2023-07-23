@@ -11,4 +11,6 @@ fn main() {
     let p = Person::from_file(std::env::args().nth(1).unwrap_or(String::from("default.toml")));
 
     println!("{p:?}");
+
+    println!("{}", toml::to_string(p.as_ref().unwrap()).unwrap());
 }

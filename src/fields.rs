@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use crate::error::Error;
 
 pub trait Field <T> {
@@ -7,8 +7,9 @@ pub trait Field <T> {
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(try_from = "String")]
+#[serde(into = "String")]
 pub enum Lang {
 	AR,
 	EN,
@@ -29,14 +30,25 @@ impl TryFrom <String> for Lang {
 	}
 }
 
-#[derive(Deserialize)]
+impl Into <String> for Lang {
+	fn into(self) -> String {
+		return match self {
+			Lang::AR => String::from("ar"),
+			Lang::EN => String::from("en"),
+			Lang::GR => String::from("gr"),
+			Lang::RO => String::from("ro"),
+		}
+	}
+}
+
+#[derive(Deserialize, Serialize)]
 #[derive(Debug)]
 #[serde(transparent)]
 pub struct GenericField <T> {
 	#[serde(flatten)]
 	data: T,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[derive(Debug)]
 pub struct TranslatableField {
 	#[serde(flatten)]
@@ -44,6 +56,12 @@ pub struct TranslatableField {
 
 	#[serde(skip)]
 	default_lang: Option <Lang>,
+}
+
+impl TranslatableField {
+	pub fn num_translations (&self) -> usize {
+		self.data.len()
+	}
 }
 
 impl <T> Field <T> for GenericField <T> {
@@ -69,11 +87,5 @@ impl Field<String> for TranslatableField {
 		}
 
 		Err(Error::ValueNotFound)
-	}
-}
-
-impl TranslatableField {
-	pub fn num_translations (&self) -> usize {
-		self.data.len()
 	}
 }

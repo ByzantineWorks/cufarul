@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
 use std::fs;
 use crate::fields::GenericField;
@@ -12,7 +12,7 @@ where
 	fn validate(&self) -> bool;
 	fn from_file(filepath: String) -> Result<Self, Box<dyn std::error::Error>> {
 		let content: String = fs::read_to_string(filepath)?;
-		let object: Self =toml::from_str(&content)?;
+		let object: Self = toml::from_str(&content)?;
 
 		if object.validate() {
 			return Ok(object);
@@ -23,7 +23,7 @@ where
 }
 
 #[derive(Debug)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[allow(dead_code)]
 pub struct Person {
 	name: TranslatableField,
