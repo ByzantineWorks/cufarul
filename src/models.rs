@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
 use std::fs;
-use crate::fields::GenericField;
-use crate::fields::TranslatableField;
+use crate::fields::{GenericField, NonEmptyString, TranslatableField};
 use crate::error::{Error, Result};
 
 pub trait Model
@@ -28,7 +27,7 @@ where
 #[serde(deny_unknown_fields)]
 pub struct Person {
 	name: TranslatableField,
-	link: GenericField <String>,
+	link: GenericField <NonEmptyString>,
 }
 
 impl Model for Person {

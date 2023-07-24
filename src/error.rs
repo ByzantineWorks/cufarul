@@ -52,7 +52,7 @@ impl std::error::Error for Error {}
 /* Error conversions */
 impl From<std::io::Error> for Error {
 	fn from(value: std::io::Error) -> Self {
-			Error::IOError(value)
+		Error::IOError(value)
 	}
 }
 
@@ -64,6 +64,6 @@ impl From<toml::de::Error> for Error {
 
 impl From<toml::ser::Error> for Error {
 	fn from(value: toml::ser::Error) -> Self {
-			Error::SerializationError(value.to_string())
+		Error::SerializationError(value.to_string())
 	}
 }

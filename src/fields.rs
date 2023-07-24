@@ -2,6 +2,28 @@ use std::{collections::HashMap, fmt::Display};
 use serde::{Deserialize, Serialize};
 use crate::error::{Error, Result};
 
+#[derive(Clone, Debug)]
+#[derive(Deserialize, Serialize)]
+#[serde(try_from = "String")]
+#[serde(into = "String")]
+pub struct NonEmptyString(String);
+
+impl TryFrom<String> for NonEmptyString {
+	type Error = Error;
+	fn try_from(value: String) -> Result<Self> {
+		match value.is_empty() {
+			true => Err(Error::NoValue),
+			false => Ok(NonEmptyString(value))
+		}
+	}
+}
+
+impl From<NonEmptyString> for String {
+	fn from(value: NonEmptyString) -> Self {
+		value.0
+	}
+}
+
 pub trait Field <T> {
 	fn value(&self, lang: Option <Lang>) -> Result <&T>;
 }
@@ -58,7 +80,7 @@ pub struct GenericField <T> {
 #[derive(Debug)]
 pub struct TranslatableField {
 	#[serde(flatten)]
-	data: HashMap <Lang, String>,
+	data: HashMap <Lang, NonEmptyString>,
 
 	#[serde(skip)]
 	default_lang: Option <Lang>,
@@ -76,8 +98,8 @@ impl <T> Field <T> for GenericField <T> {
 	}
 }
 
-impl Field<String> for TranslatableField {
-	fn value(&self, lang: Option <Lang>) -> Result <&String> {
+impl Field<NonEmptyString> for TranslatableField {
+	fn value(&self, lang: Option <Lang>) -> Result <&NonEmptyString> {
 		let mut language = lang;
 		if language.is_none() && self.default_lang.is_some() {
 			language = self.default_lang.clone()

@@ -1,6 +1,5 @@
 mod fields;
 mod error;
-mod serde;
 mod models;
 
 use crate::models::{Person, Model};
