@@ -16,6 +16,7 @@ pub enum Error {
 
 	/* Error variants for semantic and syntax errors */
 	LanguageNotSupported(String),
+	NoTranslation,
 	NoValue,
 	Semantic(String),
 	TranslationUnavailable(Lang),
@@ -40,6 +41,7 @@ impl Display for Error {
 			Error::IOError(e) => f.write_str(e.to_string().as_str()),
 			Error::LanguageNotSupported(lang) => f.write_str(format!("{lang}: language not supported").as_str()),
 			Error::NoValue => f.write_str("field has no value"),
+			Error::NoTranslation => f.write_str("no translation given"),
 			Error::Semantic(e) => f.write_str(e),
 			Error::TranslationUnavailable(lang) => f.write_str(format!("no translation available for {lang}").as_str()),
 		}
@@ -58,6 +60,8 @@ impl From<std::io::Error> for Error {
 
 impl From<toml::de::Error> for Error {
 	fn from(value: toml::de::Error) -> Self {
+		let span = value.span().unwrap();
+		println!("error: line {}-{}: {}", span.start, span.end, value.message());
 		Error::DeserializationError(value.to_string())
 	}
 }

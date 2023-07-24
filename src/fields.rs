@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Display};
+use std::{collections::HashMap, fmt::Display, hash::Hash};
 use serde::{Deserialize, Serialize};
 use crate::error::{Error, Result};
 
@@ -24,9 +24,34 @@ impl From<NonEmptyString> for String {
 	}
 }
 
+
+#[derive(Clone, Debug)]
+#[derive(Deserialize, Serialize)]
+#[serde(try_from = "HashMap<Lang, NonEmptyString>")]
+#[serde(into = "HashMap<Lang, NonEmptyString>")]
+pub struct TranslationMap(HashMap<Lang, NonEmptyString>);
+
+impl TryFrom<HashMap<Lang, NonEmptyString>> for TranslationMap {
+	type Error = Error;
+	fn try_from(value: HashMap<Lang, NonEmptyString>) -> Result<Self> {
+		match value.is_empty() {
+			true => Err(Error::NoTranslation),
+			false => Ok(TranslationMap(value))
+		}
+	}
+}
+
+impl From<TranslationMap> for HashMap<Lang, NonEmptyString> {
+	fn from(value: TranslationMap) -> Self {
+			value.0
+	}
+}
+
+
 pub trait Field <T> {
 	fn value(&self, lang: Option <Lang>) -> Result <&T>;
 }
+
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 #[derive(Deserialize, Serialize)]
@@ -80,16 +105,10 @@ pub struct GenericField <T> {
 #[derive(Debug)]
 pub struct TranslatableField {
 	#[serde(flatten)]
-	data: HashMap <Lang, NonEmptyString>,
+	data: TranslationMap,
 
 	#[serde(skip)]
 	default_lang: Option <Lang>,
-}
-
-impl TranslatableField {
-	pub fn num_translations (&self) -> usize {
-		self.data.len()
-	}
 }
 
 impl <T> Field <T> for GenericField <T> {
@@ -109,7 +128,7 @@ impl Field<NonEmptyString> for TranslatableField {
 			return Err(Error::NoValue);
 		}
 
-		let value = self.data.get(language.as_ref().unwrap());
+		let value = self.data.0.get(language.as_ref().unwrap());
 		if value.is_none() {
 			return Err(Error::TranslationUnavailable(language.unwrap()));
 		}
