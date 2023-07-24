@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Display, hash::Hash};
+use std::{collections::HashMap, fmt::Display};
 use serde::{Deserialize, Serialize};
 use crate::error::{Error, Result};
 

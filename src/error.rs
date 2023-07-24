@@ -60,8 +60,6 @@ impl From<std::io::Error> for Error {
 
 impl From<toml::de::Error> for Error {
 	fn from(value: toml::de::Error) -> Self {
-		let span = value.span().unwrap();
-		println!("error: line {}-{}: {}", span.start, span.end, value.message());
 		Error::DeserializationError(value.to_string())
 	}
 }
