@@ -30,20 +30,20 @@ impl TryFrom <String> for Lang {
 	}
 }
 
-impl Into<&str> for Lang {
-	fn into(self) -> &'static str {
-		return match self {
-			Lang::AR => "ar",
-			Lang::EN => "en",
-			Lang::GR => "gr",
-			Lang::RO => "ro",
+impl From<Lang> for String {
+	fn from(value: Lang) -> Self {
+		match value {
+			Lang::AR => String::from("ar"),
+			Lang::EN => String::from("en"),
+			Lang::GR => String::from("gr"),
+			Lang::RO => String::from("ro"),
 		}
 	}
 }
 
 impl Display for Lang {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.write_str(Lang::into(self.to_owned()))
+		f.write_str(String::from(self.to_owned()).as_str())
 	}
 }
 
