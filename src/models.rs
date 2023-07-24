@@ -3,21 +3,21 @@ use serde::de::DeserializeOwned;
 use std::fs;
 use crate::fields::GenericField;
 use crate::fields::TranslatableField;
-use crate::error::Error;
+use crate::error::{Error, Result};
 
 pub trait Model
 where
 	Self: Sized + DeserializeOwned,
 {
 	fn validate(&self) -> bool;
-	fn from_file(filepath: String) -> Result<Self, Box<dyn std::error::Error>> {
+	fn from_file(filepath: String) -> Result<Self> {
 		let content: String = fs::read_to_string(filepath)?;
 		let object: Self = toml::from_str(&content)?;
 
 		if object.validate() {
 			return Ok(object);
 		} else {
-			return Err(Box::new(Error::LanguageNotSupported));
+			return Err(Error::Semantic(String::from("validation error")));
 		}
 	}
 }
@@ -25,6 +25,7 @@ where
 #[derive(Debug)]
 #[derive(Deserialize, Serialize)]
 #[allow(dead_code)]
+#[serde(deny_unknown_fields)]
 pub struct Person {
 	name: TranslatableField,
 	link: GenericField <String>,
