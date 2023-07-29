@@ -20,6 +20,9 @@ pub enum Error {
 	NoValue,
 	Semantic(String),
 	TranslationUnavailable(Lang),
+
+	/* Error variants for database management */
+	NoDatabase,
 }
 
 impl ser::Error for Error {
@@ -44,6 +47,7 @@ impl Display for Error {
 			Error::NoTranslation => f.write_str("no translation given"),
 			Error::Semantic(e) => f.write_str(e),
 			Error::TranslationUnavailable(lang) => f.write_str(format!("no translation available for {lang}").as_str()),
+			Error::NoDatabase => f.write_str("no database found"),
 		}
 	}
 }

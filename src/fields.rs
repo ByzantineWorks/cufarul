@@ -2,7 +2,7 @@ use std::{collections::HashMap, fmt::Display};
 use serde::{Deserialize, Serialize};
 use crate::error::{Error, Result};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[derive(Deserialize, Serialize)]
 #[serde(try_from = "String")]
 #[serde(into = "String")]

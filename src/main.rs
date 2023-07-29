@@ -1,14 +1,25 @@
-mod fields;
+use std::process::exit;
+
+use cli::{Config, Command};
+
+mod cli;
+mod database;
 mod error;
+mod fields;
 mod models;
 
-use crate::models::{Person, Model};
 
 fn main() {
-    println!("Hello, world!");
+	let conf: Config = argh::from_env();
+	let res = match conf.command {
+		Command::Dump(c) => cli::dump::dump(c)
+	};
 
-    match Person::from_file(std::env::args().nth(1).unwrap_or(String::from("default.toml"))) {
-        Ok(p) => println!("{:?}", p),
-        Err(e) => println!("{}", e),
-    }
+	match res {
+		Ok(_) => exit(0),
+		Err(e) => {
+			eprintln!("Error: {e}");
+			exit(1);
+		}
+	}
 }
