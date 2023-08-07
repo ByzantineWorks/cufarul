@@ -2,7 +2,7 @@ use std::{env::current_dir, path::PathBuf};
 
 use argh::FromArgs;
 
-use crate::{error::Result, database::Database};
+use crate::{error::Result, database::{Database, CollectionKey}};
 
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name="dump")]
@@ -28,10 +28,9 @@ pub fn dump(args: Config) -> Result<()> {
 
 	match collection.as_str() {
 		"people" => {
-			let p = db.people();
+			let p = db.collection(CollectionKey::People);
 
 			println!("Dumping {} records", p.len());
-
 			if let Ok(caca) = serde_json::to_string(&p) {
 				println!("{caca}");
 			}

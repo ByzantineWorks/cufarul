@@ -1,12 +1,18 @@
-use std::{path::{Path, PathBuf}, collections::BTreeMap};
+use std::{path::{Path, PathBuf}, collections::{BTreeMap, HashMap}};
 
 use crate::{error::{Result, Error}, fields::NonEmptyString, models::{Person, Model}};
 
-type Collection<T> = BTreeMap<NonEmptyString, T>;
+type GenericCollection = BTreeMap<NonEmptyString, Box<dyn Model>>;
+type CollectionMap = HashMap<CollectionKey, GenericCollection>;
+
+#[derive(Eq, PartialEq, Hash)]
+pub enum CollectionKey {
+	People,
+}
 
 pub struct Database {
 	root: PathBuf,
-	people: Collection<Person>,
+	collections: CollectionMap,
 }
 
 impl Database {
@@ -24,24 +30,26 @@ impl Database {
 			};
 		}
 
-		let mut people: Collection<Person> = Collection::new();
+		let mut c: CollectionMap  = CollectionMap::new();
+		c.insert(CollectionKey::People, GenericCollection::new());
+
 		let people_entries = std::fs::read_dir(current.join("people"))?;
 		for entry in people_entries {
 			if let Ok(entry) = entry {
 				let path = entry.path();
 				if path.is_file() && path.extension().unwrap_or_default() == "toml" {
 					let tmp = path.clone();
-					let p: Person = Person::from_file(path)?;
+					let p: Person = crate::models::from_file(path)?;
 					let stem = tmp.file_stem().unwrap().to_string_lossy().to_string();
 					let id: NonEmptyString = NonEmptyString::try_from(stem)?;
-					people.insert(id, p);
+					c.get_mut(&CollectionKey::People).unwrap().insert(id, Box::new(p));
 				}
 			}
 		}
 
 		Ok(Database {
 			root: current.to_owned(),
-			people: people,
+			collections: c,
 		})
 	}
 
@@ -49,7 +57,7 @@ impl Database {
 		&self.root
 	}
 
-	pub fn people(&self) -> &Collection<Person> {
-		&self.people
+	pub fn collection(&self, key: CollectionKey) -> &GenericCollection {
+		&self.collections.get(&key).unwrap()
 	}
 }

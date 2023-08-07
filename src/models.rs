@@ -1,3 +1,4 @@
+use erased_serde::serialize_trait_object;
 use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
 use std::fs;
@@ -5,17 +6,7 @@ use std::path::PathBuf;
 use crate::fields::{GenericField, NonEmptyString, TranslatableField};
 use crate::error::Result;
 
-pub trait Model
-where
-	Self: Sized + DeserializeOwned,
-{
-	fn from_file(filepath: PathBuf) -> Result<Self> {
-		let content: String = fs::read_to_string(filepath)?;
-		let object: Self = toml::from_str(&content)?;
-
-		Ok(object)
-	}
-}
+pub trait Model : erased_serde::Serialize {}
 
 #[derive(Debug)]
 #[derive(Deserialize, Serialize)]
@@ -27,3 +18,13 @@ pub struct Person {
 }
 
 impl Model for Person {}
+
+serialize_trait_object!(Model);
+
+pub fn from_file <T> (filepath: PathBuf) -> Result<T>
+where T: Model + DeserializeOwned {
+	let content: String = fs::read_to_string(filepath)?;
+	let object: T = toml::from_str(&content)?;
+
+	Ok(object)
+}

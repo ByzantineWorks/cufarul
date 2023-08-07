@@ -35,6 +35,7 @@ name = "cufarul"
 version = "0.1.0"
 dependencies = [
  "argh",
+ "erased-serde",
  "serde",
  "serde_json",
  "toml",
@@ -45,6 +46,15 @@ name = "equivalent"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
+
+[[package]]
+name = "erased-serde"
+version = "0.3.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da96524cc884f6558f1769b6c46686af2fe8e8b4cd253bd5a3cdba8181b8e070"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "hashbrown"
