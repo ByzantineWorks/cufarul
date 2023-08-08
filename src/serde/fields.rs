@@ -1,97 +1,9 @@
-use std::{collections::HashMap, fmt::Display};
 use serde::{Deserialize, Serialize};
 use crate::error::{Error, Result};
-
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-#[derive(Deserialize, Serialize)]
-#[serde(try_from = "String")]
-#[serde(into = "String")]
-pub struct NonEmptyString(String);
-
-impl TryFrom<String> for NonEmptyString {
-	type Error = Error;
-	fn try_from(value: String) -> Result<Self> {
-		match value.is_empty() {
-			true => Err(Error::NoValue),
-			false => Ok(NonEmptyString(value))
-		}
-	}
-}
-
-impl From<NonEmptyString> for String {
-	fn from(value: NonEmptyString) -> Self {
-		value.0
-	}
-}
-
-
-#[derive(Clone, Debug)]
-#[derive(Deserialize, Serialize)]
-#[serde(try_from = "HashMap<Lang, NonEmptyString>")]
-#[serde(into = "HashMap<Lang, NonEmptyString>")]
-pub struct TranslationMap(HashMap<Lang, NonEmptyString>);
-
-impl TryFrom<HashMap<Lang, NonEmptyString>> for TranslationMap {
-	type Error = Error;
-	fn try_from(value: HashMap<Lang, NonEmptyString>) -> Result<Self> {
-		match value.is_empty() {
-			true => Err(Error::NoTranslation),
-			false => Ok(TranslationMap(value))
-		}
-	}
-}
-
-impl From<TranslationMap> for HashMap<Lang, NonEmptyString> {
-	fn from(value: TranslationMap) -> Self {
-			value.0
-	}
-}
-
+use super::{Lang, translation::TranslationMap, NonEmptyString};
 
 pub trait Field <T> {
 	fn value(&self, lang: Option <Lang>) -> Result <&T>;
-}
-
-
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-#[derive(Deserialize, Serialize)]
-#[serde(try_from = "String")]
-#[serde(into = "String")]
-pub enum Lang {
-	AR,
-	EN,
-	GR,
-	RO,
-}
-
-impl TryFrom <String> for Lang {
-	type Error = Error;
-	fn try_from(value: String) -> Result<Self> {
-		return match value.trim() {
-			"ar" => Ok(Lang::AR),
-			"en" => Ok(Lang::EN),
-			"gr" => Ok(Lang::GR),
-			"ro" => Ok(Lang::RO),
-			code => Err(Error::LanguageNotSupported(String::from(code)))
-		};
-	}
-}
-
-impl From<Lang> for String {
-	fn from(value: Lang) -> Self {
-		match value {
-			Lang::AR => String::from("ar"),
-			Lang::EN => String::from("en"),
-			Lang::GR => String::from("gr"),
-			Lang::RO => String::from("ro"),
-		}
-	}
-}
-
-impl Display for Lang {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.write_str(String::from(self.to_owned()).as_str())
-	}
 }
 
 #[derive(Deserialize, Serialize)]
@@ -128,39 +40,11 @@ impl Field<NonEmptyString> for TranslatableField {
 			return Err(Error::NoValue);
 		}
 
-		let value = self.data.0.get(language.as_ref().unwrap());
+		let value = self.data.translation(language.as_ref().unwrap());
 		if value.is_none() {
 			return Err(Error::TranslationUnavailable(language.unwrap()));
 		}
 
 		Ok(value.unwrap())
 	}
-}
-
-/* Testing */
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_non_empty_string () {
-        assert!(NonEmptyString::try_from(String::from("")).is_err());
-    }
-
-    #[test]
-    fn test_lang_string_serde () -> Result<()> {
-        assert_eq!(String::from(Lang::AR), String::from("ar"));
-        assert_eq!(String::from(Lang::EN), String::from("en"));
-        assert_eq!(String::from(Lang::GR), String::from("gr"));
-        assert_eq!(String::from(Lang::RO), String::from("ro"));
-
-        assert_eq!(Lang::AR, Lang::try_from(String::from("ar"))?);
-        assert_eq!(Lang::EN, Lang::try_from(String::from("en"))?);
-        assert_eq!(Lang::GR, Lang::try_from(String::from("gr"))?);
-        assert_eq!(Lang::RO, Lang::try_from(String::from("ro"))?);
-
-        assert!(Lang::try_from(String::from("unknown")).is_err());
-
-        Ok(())
-    }
 }
