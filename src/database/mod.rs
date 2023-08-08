@@ -1,6 +1,6 @@
 use std::{path::{Path, PathBuf}, collections::{BTreeMap, HashMap}};
 
-use crate::{error::{Result, Error}, fields::NonEmptyString, models::{Person, Model}};
+use crate::{error::{Result, Error}, serde::NonEmptyString, models::{Person, Model}};
 
 type GenericCollection = BTreeMap<NonEmptyString, Box<dyn Model>>;
 type CollectionMap = HashMap<CollectionKey, GenericCollection>;

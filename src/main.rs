@@ -5,7 +5,7 @@ use cli::{Config, Command};
 mod cli;
 mod database;
 mod error;
-mod fields;
+mod serde;
 mod models;
 
 

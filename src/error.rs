@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use serde::{de, ser};
 
-use crate::fields::Lang;
+use crate::serde::Lang;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
