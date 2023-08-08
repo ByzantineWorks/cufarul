@@ -5,12 +5,12 @@ pub mod dump;
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand)]
 pub enum Command {
-	Dump(dump::Config),
+    Dump(dump::Config),
 }
 
 #[derive(FromArgs)]
 /// Cufarul
 pub struct Config {
-	#[argh(subcommand)]
-	pub command: Command,
+    #[argh(subcommand)]
+    pub command: Command,
 }

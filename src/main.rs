@@ -1,25 +1,24 @@
 use std::process::exit;
 
-use cli::{Config, Command};
+use cli::{Command, Config};
 
 mod cli;
 mod database;
 mod error;
-mod serde;
 mod models;
-
+mod serde;
 
 fn main() {
-	let conf: Config = argh::from_env();
-	let res = match conf.command {
-		Command::Dump(c) => cli::dump::dump(c)
-	};
+    let conf: Config = argh::from_env();
+    let res = match conf.command {
+        Command::Dump(c) => cli::dump::dump(c),
+    };
 
-	match res {
-		Ok(_) => exit(0),
-		Err(e) => {
-			eprintln!("Error: {e}");
-			exit(1);
-		}
-	}
+    match res {
+        Ok(_) => exit(0),
+        Err(e) => {
+            eprintln!("Error: {e}");
+            exit(1);
+        }
+    }
 }

@@ -1,7 +1,7 @@
+mod datatypes;
 mod fields;
 mod lang;
 mod translation;
-mod datatypes;
 
 pub use datatypes::NonEmptyString;
 pub use fields::GenericField;
@@ -11,16 +11,16 @@ pub use lang::Lang;
 /* Testing */
 #[cfg(test)]
 mod tests {
-    use crate::error::Result;
     use super::*;
+    use crate::error::Result;
 
     #[test]
-    fn test_non_empty_string () {
+    fn test_non_empty_string() {
         assert!(NonEmptyString::try_from(String::from("")).is_err());
     }
 
     #[test]
-    fn test_lang_string_serde () -> Result<()> {
+    fn test_lang_string_serde() -> Result<()> {
         assert_eq!(String::from(Lang::AR), String::from("ar"));
         assert_eq!(String::from(Lang::EN), String::from("en"));
         assert_eq!(String::from(Lang::GR), String::from("gr"));
