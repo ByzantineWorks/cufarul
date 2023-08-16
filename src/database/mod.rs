@@ -14,9 +14,10 @@ use crate::{
 use std::{
     collections::{BTreeMap, HashMap},
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
-type GenericCollection = BTreeMap<NonEmptyString, Box<dyn Model>>;
+type GenericCollection = BTreeMap<NonEmptyString, Rc<dyn Model>>;
 type CollectionMap = HashMap<CollectionKey, GenericCollection>;
 
 /*
@@ -52,7 +53,7 @@ impl Database {
                 CollectionKey::People => {
                     collection.insert(
                         NonEmptyString::try_from(entry.id)?,
-                        Box::new(from_file::<Person>(entry.path)?),
+                        Rc::new(from_file::<Person>(entry.path)?),
                     );
                 }
             }

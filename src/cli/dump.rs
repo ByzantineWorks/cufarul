@@ -34,8 +34,10 @@ pub fn dump(args: Config) -> Result<()> {
             let p = db.collection(CollectionKey::People);
 
             println!("Dumping {} records", p.len());
-            if let Ok(caca) = serde_json::to_string(&p) {
-                println!("{caca}");
+            for (id, data) in p {
+                if let Ok(data) = serde_json::to_string(data.as_ref()) {
+                    println!("{}: {data}", id.value());
+                }
             }
         }
         _ => {
