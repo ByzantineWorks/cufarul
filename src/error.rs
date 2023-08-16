@@ -23,6 +23,8 @@ pub enum Error {
 
     /* Error variants for database management */
     NoDatabase,
+    InvalidCollection(String),
+    UnsupportedDatabaseVersion(u8),
 }
 
 impl ser::Error for Error {
@@ -58,6 +60,10 @@ impl Display for Error {
                 f.write_str(format!("no translation available for {lang}").as_str())
             }
             Error::NoDatabase => f.write_str("no database found"),
+            Error::InvalidCollection(c) => f.write_str(format!("{c}: invalid collection").as_str()),
+            Error::UnsupportedDatabaseVersion(v) => {
+                f.write_str(format!("unsupported database version {v}").as_str())
+            }
         }
     }
 }

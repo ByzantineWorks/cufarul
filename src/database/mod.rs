@@ -1,24 +1,29 @@
+mod collection;
+mod loader;
+mod spec;
+mod version;
+
+pub use self::collection::CollectionKey;
+
+use self::{loader::LoadSpec, spec::DatabaseSpec, version::DATABASE_VERSION};
+use crate::{
+    error::{Error, Result},
+    models::{from_file, Model, Person},
+    serde::NonEmptyString,
+};
 use std::{
     collections::{BTreeMap, HashMap},
     path::{Path, PathBuf},
 };
 
-use crate::{
-    error::{Error, Result},
-    models::{Model, Person},
-    serde::NonEmptyString,
-};
-
 type GenericCollection = BTreeMap<NonEmptyString, Box<dyn Model>>;
 type CollectionMap = HashMap<CollectionKey, GenericCollection>;
 
-#[derive(Eq, PartialEq, Hash)]
-pub enum CollectionKey {
-    People,
-}
-
+/*
+ * Database - internal representation of the database
+ */
 pub struct Database {
-    root: PathBuf,
+    spec: DatabaseSpec,
     collections: CollectionMap,
 }
 
@@ -37,36 +42,56 @@ impl Database {
             };
         }
 
-        let mut c: CollectionMap = CollectionMap::new();
-        c.insert(CollectionKey::People, GenericCollection::new());
+        let db_spec = DatabaseSpec::try_from(current.join(".cufarul"))?;
+        let load_spec = LoadSpec::try_from(db_spec.clone())?;
+        let mut db = Database::try_from(db_spec)?;
 
-        let people_entries = std::fs::read_dir(current.join("people"))?;
-        for entry in people_entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.is_file() && path.extension().unwrap_or_default() == "toml" {
-                    let tmp = path.clone();
-                    let p: Person = crate::models::from_file(path)?;
-                    let stem = tmp.file_stem().unwrap().to_string_lossy().to_string();
-                    let id: NonEmptyString = NonEmptyString::try_from(stem)?;
-                    c.get_mut(&CollectionKey::People)
-                        .unwrap()
-                        .insert(id, Box::new(p));
+        for entry in load_spec {
+            let collection = db.collections.get_mut(&entry.collection).unwrap();
+            match entry.collection {
+                CollectionKey::People => {
+                    collection.insert(
+                        NonEmptyString::try_from(entry.id)?,
+                        Box::new(from_file::<Person>(entry.path)?),
+                    );
                 }
             }
         }
 
-        Ok(Database {
-            root: current.to_owned(),
-            collections: c,
-        })
+        Ok(db)
     }
 
     pub fn root(&self) -> &PathBuf {
-        &self.root
+        &self.spec.root
     }
 
     pub fn collection(&self, key: CollectionKey) -> &GenericCollection {
         &self.collections.get(&key).unwrap()
+    }
+
+    pub fn supported_collections() -> &'static [CollectionKey] {
+        const S_COLLECTIONS: [CollectionKey; 1] = [CollectionKey::People];
+        &S_COLLECTIONS
+    }
+}
+
+impl TryFrom<DatabaseSpec> for Database {
+    type Error = Error;
+    fn try_from(spec: DatabaseSpec) -> Result<Self> {
+        if spec.database.version.major() != DATABASE_VERSION {
+            return Err(Error::UnsupportedDatabaseVersion(
+                spec.database.version.major(),
+            ));
+        }
+
+        let mut collections = CollectionMap::new();
+        for c in Database::supported_collections() {
+            collections.insert(c.clone(), GenericCollection::new());
+        }
+
+        Ok(Database {
+            spec: spec.to_owned(),
+            collections: collections,
+        })
     }
 }

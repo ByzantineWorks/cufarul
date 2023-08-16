@@ -4,6 +4,7 @@ mod lang;
 mod translation;
 
 pub use datatypes::NonEmptyString;
+pub use datatypes::VersionInfo;
 pub use fields::GenericField;
 pub use fields::TranslatableField;
 pub use lang::Lang;
