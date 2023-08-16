@@ -1,24 +1,12 @@
 use crate::error::Result;
-use crate::serde::{GenericField, NonEmptyString, TranslatableField};
 use erased_serde::serialize_trait_object;
 use serde::de::DeserializeOwned;
-use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 pub trait Model: erased_serde::Serialize {}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[allow(dead_code)]
-#[serde(deny_unknown_fields)]
-pub struct Person {
-    name: TranslatableField,
-    link: GenericField<NonEmptyString>,
-}
-
-impl Model for Person {}
-
 serialize_trait_object!(Model);
+
+mod person;
 
 pub fn from_file<T>(filepath: PathBuf) -> Result<T>
 where
@@ -29,3 +17,5 @@ where
 
     Ok(object)
 }
+
+pub use person::Person;
