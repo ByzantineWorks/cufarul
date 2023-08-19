@@ -1,4 +1,4 @@
-use super::{spec::DatabaseSpec, CollectionKey, Database};
+use super::{spec::DatabaseSpec, CollectionKey};
 use crate::error::{Error, Result};
 use std::path::PathBuf;
 
@@ -51,7 +51,7 @@ impl TryFrom<DatabaseSpec> for LoadSpec {
     type Error = Error;
     fn try_from(spec: DatabaseSpec) -> Result<Self> {
         let mut res = LoadSpec::new();
-        for collection in Database::supported_collections() {
+        for collection in CollectionKey::iter() {
             let collection_dir = spec.root.join(String::from(collection.to_owned()));
             for entry in std::fs::read_dir(collection_dir)? {
                 let path = entry?.path();

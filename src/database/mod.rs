@@ -69,11 +69,6 @@ impl Database {
     pub fn collection(&self, key: CollectionKey) -> &GenericCollection {
         &self.collections.get(&key).unwrap()
     }
-
-    pub fn supported_collections() -> &'static [CollectionKey] {
-        const S_COLLECTIONS: [CollectionKey; 1] = [CollectionKey::People];
-        &S_COLLECTIONS
-    }
 }
 
 impl TryFrom<DatabaseSpec> for Database {
@@ -86,7 +81,7 @@ impl TryFrom<DatabaseSpec> for Database {
         }
 
         let mut collections = CollectionMap::new();
-        for c in Database::supported_collections() {
+        for c in CollectionKey::iter() {
             collections.insert(c.clone(), GenericCollection::new());
         }
 

@@ -1,4 +1,5 @@
 use crate::error::{Error, Result};
+use std::slice::Iter;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum CollectionKey {
@@ -20,5 +21,12 @@ impl From<CollectionKey> for String {
         match value {
             CollectionKey::People => String::from("people"),
         }
+    }
+}
+
+impl CollectionKey {
+    pub fn iter() -> Iter<'static, CollectionKey> {
+        const COLLECTIONS: [CollectionKey; 1] = [CollectionKey::People];
+        COLLECTIONS.iter()
     }
 }
