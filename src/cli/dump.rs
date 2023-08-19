@@ -21,27 +21,37 @@ pub struct Config {
 }
 
 pub fn dump(args: Config) -> Result<()> {
-    let collection = args.collection.unwrap_or_default().to_string();
     let root = args.root.unwrap_or(current_dir().unwrap_or_default());
-
     let db = Database::load(&root)?;
 
     println!("Database at {}", db.root().to_string_lossy().to_string());
-    println!("Collection: {}", collection);
 
-    match collection.as_str() {
-        "people" => {
-            let p = db.collection(CollectionKey::People);
-
-            println!("Dumping {} records", p.len());
-            for (id, data) in p {
-                if let Ok(data) = serde_json::to_string(data.as_ref()) {
-                    println!("{}: {data}", id.value());
-                }
+    match args.collection {
+        Some(c) => {
+            let collection = CollectionKey::try_from(c)?;
+            return dump_collection(&db, collection);
+        }
+        None => {
+            for collection in CollectionKey::iter() {
+                dump_collection(&db, *collection).expect("error while dumping");
             }
         }
-        _ => {
-            println!("not supported yet");
+    }
+
+    Ok(())
+}
+
+fn dump_collection(db: &Database, collection: CollectionKey) -> Result<()> {
+    let p = db.collection(collection);
+
+    println!(
+        "Dumping {} records from collection {:?}",
+        p.len(),
+        collection
+    );
+    for (id, data) in p {
+        if let Ok(data) = serde_json::to_string(data.as_ref()) {
+            println!("{}: {data}", id.value());
         }
     }
 

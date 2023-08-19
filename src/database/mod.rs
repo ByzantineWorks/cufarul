@@ -8,7 +8,7 @@ pub use self::collection::CollectionKey;
 use self::{loader::LoadSpec, spec::DatabaseSpec, version::DATABASE_VERSION};
 use crate::{
     error::{Error, Result},
-    models::{from_file, Model, Person},
+    models::{from_file, Model, Person, Text},
     serde::NonEmptyString,
 };
 use std::{
@@ -49,11 +49,18 @@ impl Database {
 
         for entry in load_spec {
             let collection = db.collections.get_mut(&entry.collection).unwrap();
+            println!("Loading {:?}", entry.path);
             match entry.collection {
                 CollectionKey::People => {
                     collection.insert(
                         NonEmptyString::try_from(entry.id)?,
                         Rc::new(from_file::<Person>(entry.path)?),
+                    );
+                }
+                CollectionKey::Texts => {
+                    collection.insert(
+                        NonEmptyString::try_from(entry.id)?,
+                        Rc::new(from_file::<Text>(entry.path)?),
                     );
                 }
             }

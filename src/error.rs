@@ -20,6 +20,7 @@ pub enum Error {
     NoValue,
     Semantic(String),
     TranslationUnavailable(Lang),
+    InvalidReferenceString(String),
 
     /* Error variants for database management */
     NoDatabase,
@@ -58,6 +59,9 @@ impl Display for Error {
             Error::Semantic(e) => f.write_str(e),
             Error::TranslationUnavailable(lang) => {
                 f.write_str(format!("no translation available for {lang}").as_str())
+            }
+            Error::InvalidReferenceString(r) => {
+                f.write_str(format!("{r}: invalid reference string").as_str())
             }
             Error::NoDatabase => f.write_str("no database found"),
             Error::InvalidCollection(c) => f.write_str(format!("{c}: invalid collection").as_str()),

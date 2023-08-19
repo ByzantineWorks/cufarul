@@ -7,6 +7,7 @@ pub trait Model: erased_serde::Serialize {}
 serialize_trait_object!(Model);
 
 mod person;
+mod text;
 
 pub fn from_file<T>(filepath: PathBuf) -> Result<T>
 where
@@ -19,3 +20,4 @@ where
 }
 
 pub use person::Person;
+pub use text::Text;
