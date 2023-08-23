@@ -12,6 +12,7 @@ name = "cufarul-cli"
 path = "src/main.rs"
 
 [dependencies]
+argh = "0.1.12"
 
 [dependencies.cufarul-lib]
 path = "../lib"
