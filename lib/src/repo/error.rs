@@ -7,7 +7,7 @@ pub enum Error {
     NoRepositoryFound,
     UnsupportedVersion(u8),
     IoError(std::io::Error),
-    DeError(String),
+    DeError(toml::de::Error),
 }
 
 impl Display for Error {
@@ -31,7 +31,7 @@ impl std::error::Error for Error {}
 
 impl From<toml::de::Error> for Error {
     fn from(value: toml::de::Error) -> Self {
-        Error::DeError(String::from(value.message()))
+        Error::DeError(value)
     }
 }
 
