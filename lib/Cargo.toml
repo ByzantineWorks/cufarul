@@ -1,0 +1,14 @@
+[package]
+name = "cufarul-lib"
+version = "0.1.0"
+authors = ["Alexandru N. Onea <alexandru@onea.ro>"]
+description = "In-memory storage for the byzantine music database"
+keywords = ["graph", "database"]
+license = "GPLv2"
+edition = "2021"
+
+[lib]
+name = "cufarul"
+path = "src/lib.rs"
+
+[dependencies]

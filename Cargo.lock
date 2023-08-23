@@ -5,3 +5,10 @@ version = 3
 [[package]]
 name = "cufarul"
 version = "0.1.0"
+dependencies = [
+ "cufarul-lib",
+]
+
+[[package]]
+name = "cufarul-lib"
+version = "0.1.0"
