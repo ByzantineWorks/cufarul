@@ -1,6 +1,6 @@
 use crate::args::Args;
 use cufarul::{
-    model::{EdgeKind, NodeKind},
+    model::{EdgeKind, NodeKind, Person},
     repo::Repository,
 };
 use std::process::exit;
@@ -28,9 +28,9 @@ fn main() {
     );
 
     repo.db_mut()
-        .insert_node("spanac".to_owned(), NodeKind::Person);
+        .insert_node("spanac".to_owned(), NodeKind::Person(Person {}));
     repo.db_mut()
-        .insert_node("macaroana".to_owned(), NodeKind::Person);
+        .insert_node("macaroana".to_owned(), NodeKind::Person(Person {}));
     repo.db_mut()
         .insert_edge(
             "spanac".to_owned(),
@@ -39,5 +39,5 @@ fn main() {
         )
         .expect("something went wrong");
 
-    println!("{:?}", repo.db());
+    println!("{:#?}", repo.db());
 }

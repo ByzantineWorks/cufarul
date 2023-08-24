@@ -1,12 +1,10 @@
 mod person;
-
+use crate::db::Identify;
 pub use person::Person;
 
-use crate::db::Identify;
-
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug)]
 pub enum NodeKind {
-    Person,
+    Person(Person),
 }
 
 #[derive(Debug, Hash, Eq, PartialEq)]
