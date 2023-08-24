@@ -12,5 +12,7 @@ name = "cufarul"
 path = "src/lib.rs"
 
 [dependencies]
+uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 serde = { version = "1.0.185", features = ["derive"] }
 toml = "0.7.6"
+md5 = "0.7.0"
