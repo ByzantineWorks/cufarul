@@ -15,16 +15,16 @@ pub enum Error {
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::UnsupportedLanguage(code) => {
+            Self::UnsupportedLanguage(code) => {
                 f.write_fmt(format_args!("{code}: language not supported"))
             }
-            Error::DeserializationError(msg) => {
+            Self::DeserializationError(msg) => {
                 f.write_fmt(format_args!("deserialization error: {msg}"))
             }
-            Error::InternalError(msg) => f.write_fmt(format_args!("internal error: {msg}")),
-            Error::MissingTranslation => f.write_str("no translation given"),
-            Error::MissingValue => f.write_str("propery cannot be empty"),
-            Error::InvalidReference(reference) => {
+            Self::InternalError(msg) => f.write_fmt(format_args!("internal error: {msg}")),
+            Self::MissingTranslation => f.write_str("no translation given"),
+            Self::MissingValue => f.write_str("propery cannot be empty"),
+            Self::InvalidReference(reference) => {
                 f.write_fmt(format_args!("{reference}: invalid reference"))
             }
         }
@@ -38,12 +38,12 @@ impl serde::de::Error for Error {
     where
         T: Display,
     {
-        Error::DeserializationError(msg.to_string())
+        Self::DeserializationError(msg.to_string())
     }
 }
 
 impl From<toml::de::Error> for Error {
     fn from(value: toml::de::Error) -> Self {
-        Error::DeserializationError(value.to_string())
+        Self::DeserializationError(value.to_string())
     }
 }

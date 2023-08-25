@@ -21,3 +21,4 @@ impl<NodeId> Node<NodeId> {
 }
 
 pub trait INode: Debug {}
+impl INode for () {}

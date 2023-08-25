@@ -4,12 +4,12 @@ use std::path::{Path, PathBuf};
 
 const REPOSITORY_CONFIG_FILE: &str = ".cufarul";
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct DatabaseSection {
     version: u8,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct RepositorySpec {
     #[serde(skip)]
     root: PathBuf,

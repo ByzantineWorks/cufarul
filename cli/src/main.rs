@@ -1,13 +1,9 @@
 use crate::args::Args;
-use cufarul::{
-    model::{CollectionKey, Model, Person, ReferenceKey},
-    repo::Repository,
-};
-use std::{process::exit, rc::Rc};
+use cufarul::{error::Result, repo::Repository};
 
 mod args;
 
-fn main() {
+fn main() -> Result<()> {
     let args: Args = argh::from_env();
     let mut repo = cufarul::repo::RepositorySpec::from_path(
         args.repo
@@ -15,11 +11,8 @@ fn main() {
             .unwrap()
             .as_path(),
     )
-    .and_then(|spec| Repository::try_from(spec))
-    .unwrap_or_else(|e| {
-        eprintln!("Error: {e}");
-        exit(1);
-    });
+    .map_err(|err| err.into())
+    .and_then(|spec| Repository::try_from(spec))?;
 
     println!(
         "Found repository version {} at {:?}",
@@ -27,29 +20,9 @@ fn main() {
         repo.spec().root()
     );
 
-    let spanac_path = repo.spec().root().join("people").join("spanac.toml");
-    let macaroana_path = repo.spec().root().join("people").join("macaroana.toml");
-
-    let spanac = Person::load(spanac_path).expect("could not load spanac");
-    let macaroana = Person::load(macaroana_path).expect("could not load macaroana");
-
-    repo.db_mut()
-        .insert_node(CollectionKey::Person("spanac".to_owned()), Rc::new(spanac))
-        .expect("insert: spanac: something went wrong");
-    repo.db_mut()
-        .insert_node(
-            CollectionKey::Person("macaroana".to_owned()),
-            Rc::new(macaroana),
-        )
-        .expect("insert: macaroana: something went wrong");
-    repo.db_mut()
-        .insert_edge(
-            CollectionKey::Person("spanac".to_owned()),
-            CollectionKey::Person("macaroana".to_owned()),
-            ReferenceKey::Author,
-            None,
-        )
-        .expect("insert: edge: something went wrong");
+    println!("Syncing...");
+    repo.sync()?;
 
     println!("{:#?}", repo.db());
+    Ok(())
 }
