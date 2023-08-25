@@ -1,6 +1,6 @@
 use crate::args::Args;
 use cufarul::{
-    model::{CollectionKey, Person, ReferenceKey},
+    model::{CollectionKey, Model, Person, ReferenceKey},
     repo::Repository,
 };
 use std::{process::exit, rc::Rc};
@@ -27,16 +27,19 @@ fn main() {
         repo.spec().root()
     );
 
+    let spanac_path = repo.spec().root().join("people").join("spanac.toml");
+    let macaroana_path = repo.spec().root().join("people").join("macaroana.toml");
+
+    let spanac = Person::load(spanac_path).expect("could not load spanac");
+    let macaroana = Person::load(macaroana_path).expect("could not load macaroana");
+
     repo.db_mut()
-        .insert_node(
-            CollectionKey::Person("spanac".to_owned()),
-            Rc::new(Person {}),
-        )
+        .insert_node(CollectionKey::Person("spanac".to_owned()), Rc::new(spanac))
         .expect("insert: spanac: something went wrong");
     repo.db_mut()
         .insert_node(
             CollectionKey::Person("macaroana".to_owned()),
-            Rc::new(Person {}),
+            Rc::new(macaroana),
         )
         .expect("insert: macaroana: something went wrong");
     repo.db_mut()
