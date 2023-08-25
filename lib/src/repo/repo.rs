@@ -1,25 +1,20 @@
 use std::fmt::Debug;
 
 use super::{Error, RepositorySpec, Result};
-use crate::db::{Database, Identity};
+use crate::{
+    db::Database,
+    model::{CollectionKey, ReferenceKey},
+};
 
 const SUPPORTED_VERSION: u8 = 0;
 
 #[derive(Debug)]
-pub struct Repository<NodeId, EdgeId>
-where
-    NodeId: Identity,
-    EdgeId: Identity,
-{
+pub struct Repository {
     spec: RepositorySpec,
-    db: Database<NodeId, EdgeId>,
+    db: Database<CollectionKey, ReferenceKey>,
 }
 
-impl<NodeId, EdgeId> TryFrom<RepositorySpec> for Repository<NodeId, EdgeId>
-where
-    NodeId: Identity,
-    EdgeId: Identity,
-{
+impl TryFrom<RepositorySpec> for Repository {
     type Error = Error;
     fn try_from(spec: RepositorySpec) -> Result<Self> {
         if spec.version() != SUPPORTED_VERSION {
@@ -33,20 +28,16 @@ where
     }
 }
 
-impl<NodeId, EdgeId> Repository<NodeId, EdgeId>
-where
-    NodeId: Identity,
-    EdgeId: Identity,
-{
+impl Repository {
     pub fn spec(&self) -> &RepositorySpec {
         &self.spec
     }
 
-    pub fn db_mut(&mut self) -> &mut Database<NodeId, EdgeId> {
+    pub fn db_mut(&mut self) -> &mut Database<CollectionKey, ReferenceKey> {
         &mut self.db
     }
 
-    pub fn db(&self) -> &Database<NodeId, EdgeId> {
+    pub fn db(&self) -> &Database<CollectionKey, ReferenceKey> {
         &self.db
     }
 }

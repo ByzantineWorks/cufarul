@@ -15,7 +15,7 @@ fn main() {
             .unwrap()
             .as_path(),
     )
-    .and_then(|spec| Repository::<CollectionKey, ReferenceKey>::try_from(spec))
+    .and_then(|spec| Repository::try_from(spec))
     .unwrap_or_else(|e| {
         eprintln!("Error: {e}");
         exit(1);
