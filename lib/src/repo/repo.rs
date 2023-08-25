@@ -1,24 +1,24 @@
-use std::{fmt::Debug, hash::Hash};
+use std::fmt::Debug;
 
 use super::{Error, RepositorySpec, Result};
-use crate::db::{Database, Identify};
+use crate::db::{Database, Identity};
 
 const SUPPORTED_VERSION: u8 = 0;
 
 #[derive(Debug)]
-pub struct Repository<E, N>
+pub struct Repository<NodeId, EdgeId>
 where
-    E: Debug + Hash + Eq + Identify,
-    N: Debug,
+    NodeId: Identity,
+    EdgeId: Identity,
 {
     spec: RepositorySpec,
-    db: Database<E, N>,
+    db: Database<NodeId, EdgeId>,
 }
 
-impl<E, N> TryFrom<RepositorySpec> for Repository<E, N>
+impl<NodeId, EdgeId> TryFrom<RepositorySpec> for Repository<NodeId, EdgeId>
 where
-    E: Debug + Hash + Eq + Identify,
-    N: Debug,
+    NodeId: Identity,
+    EdgeId: Identity,
 {
     type Error = Error;
     fn try_from(spec: RepositorySpec) -> Result<Self> {
@@ -28,25 +28,25 @@ where
 
         Ok(Repository {
             spec: spec,
-            db: Database::<E, N>::default(),
+            db: Database::default(),
         })
     }
 }
 
-impl<E, N> Repository<E, N>
+impl<NodeId, EdgeId> Repository<NodeId, EdgeId>
 where
-    E: Debug + Hash + Eq + Identify,
-    N: Debug,
+    NodeId: Identity,
+    EdgeId: Identity,
 {
     pub fn spec(&self) -> &RepositorySpec {
         &self.spec
     }
 
-    pub fn db_mut(&mut self) -> &mut Database<E, N> {
+    pub fn db_mut(&mut self) -> &mut Database<NodeId, EdgeId> {
         &mut self.db
     }
 
-    pub fn db(&self) -> &Database<E, N> {
+    pub fn db(&self) -> &Database<NodeId, EdgeId> {
         &self.db
     }
 }

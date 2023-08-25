@@ -3,7 +3,7 @@ use cufarul::{
     model::{EdgeKind, NodeKind, Person},
     repo::Repository,
 };
-use std::process::exit;
+use std::{process::exit, rc::Rc};
 
 mod args;
 
@@ -15,7 +15,7 @@ fn main() {
             .unwrap()
             .as_path(),
     )
-    .and_then(|spec| Repository::<EdgeKind, NodeKind>::try_from(spec))
+    .and_then(|spec| Repository::<NodeKind, EdgeKind>::try_from(spec))
     .unwrap_or_else(|e| {
         eprintln!("Error: {e}");
         exit(1);
@@ -28,16 +28,19 @@ fn main() {
     );
 
     repo.db_mut()
-        .insert_node("spanac".to_owned(), NodeKind::Person(Person {}));
+        .insert_node(NodeKind::Person("spanac".to_owned()), Rc::new(Person {}))
+        .expect("insert: spanac: something went wrong");
     repo.db_mut()
-        .insert_node("macaroana".to_owned(), NodeKind::Person(Person {}));
+        .insert_node(NodeKind::Person("macaroana".to_owned()), Rc::new(Person {}))
+        .expect("insert: macaroana: something went wrong");
     repo.db_mut()
         .insert_edge(
-            "spanac".to_owned(),
-            "macaroana".to_owned(),
+            NodeKind::Person("spanac".to_owned()),
+            NodeKind::Person("macaroana".to_owned()),
             EdgeKind::Author,
+            None,
         )
-        .expect("something went wrong");
+        .expect("insert: edge: something went wrong");
 
     println!("{:#?}", repo.db());
 }

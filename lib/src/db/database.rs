@@ -1,34 +1,30 @@
-use super::{Edge, EdgeHash, Error, Identify, Node, Result, UniqueId};
+use super::{node::INode, Edge, Error, IEdge, Identity, Node, ReferenceId, Result};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, LinkedList},
     fmt::Debug,
-    hash::Hash,
     rc::Rc,
 };
 
-pub type EdgeId = EdgeHash;
-pub type NodeId = UniqueId;
+type EdgeList<NodeId, EdgeId> = LinkedList<Edge<NodeId, EdgeId>>;
 
-type EdgeList<E> = HashSet<Rc<Edge<E>>>;
-
-type NodeMap<N> = BTreeMap<NodeId, Node<N>>;
-type EdgeMap<E> = BTreeMap<EdgeId, EdgeList<E>>;
+type NodeMap<NodeId> = BTreeMap<NodeId, Node<NodeId>>;
+type EdgeMap<NodeId, EdgeId> = BTreeMap<ReferenceId<NodeId, EdgeId>, EdgeList<NodeId, EdgeId>>;
 
 #[derive(Debug)]
-pub struct Database<E, N>
+pub struct Database<NodeId, EdgeId>
 where
-    E: Debug + Hash + Eq + Identify,
-    N: Debug,
+    NodeId: Identity,
+    EdgeId: Identity,
 {
-    nodes: NodeMap<N>,
-    incoming: EdgeMap<E>,
-    outgoing: EdgeMap<E>,
+    nodes: NodeMap<NodeId>,
+    incoming: EdgeMap<NodeId, EdgeId>,
+    outgoing: EdgeMap<NodeId, EdgeId>,
 }
 
-impl<E, N> Default for Database<E, N>
+impl<NodeId, EdgeId> Default for Database<NodeId, EdgeId>
 where
-    E: Debug + Hash + Eq + Identify,
-    N: Debug,
+    NodeId: Identity,
+    EdgeId: Identity,
 {
     fn default() -> Self {
         Database {
@@ -39,38 +35,50 @@ where
     }
 }
 
-impl<E, N> Database<E, N>
+impl<NodeId, EdgeId> Database<NodeId, EdgeId>
 where
-    E: Debug + Into<String> + Hash + Eq + Identify,
-    N: Debug,
+    NodeId: Identity,
+    EdgeId: Identity,
 {
-    pub fn insert_node(&mut self, id: UniqueId, data: N) -> Option<&Node<N>> {
-        Some(
-            self.nodes
-                .entry(id.to_owned())
-                .or_insert(Node::<N>::new(id.to_owned(), data)),
-        )
+    pub fn insert_node(&mut self, id: NodeId, data: Rc<dyn INode>) -> Result<()> {
+        self.nodes
+            .entry(id.to_owned())
+            .or_insert(Node::new(id.to_owned(), data));
+
+        Ok(())
     }
 
-    pub fn insert_edge(&mut self, sub: NodeId, obj: NodeId, pred: E) -> Result<()> {
+    pub fn insert_edge(
+        &mut self,
+        sub: NodeId,
+        obj: NodeId,
+        pred: EdgeId,
+        data: Option<Rc<dyn IEdge>>,
+    ) -> Result<()> {
         if !self.nodes.contains_key(&sub) {
-            return Err(Error::InvalidUniqueId(sub.to_owned()));
+            return Err(Error::InvalidUniqueId(sub.into()));
         }
 
         if !self.nodes.contains_key(&obj) {
-            return Err(Error::InvalidUniqueId(obj.to_owned()));
+            return Err(Error::InvalidUniqueId(obj.into()));
         }
 
-        let edge = Rc::new(Edge::new(sub.to_owned(), obj.to_owned(), pred));
+        let edge = Edge::new(
+            sub.to_owned(),
+            obj.to_owned(),
+            pred.to_owned(),
+            data.clone(),
+        );
+
         self.outgoing
-            .entry(EdgeHash::outgoing(&edge))
-            .or_insert_with(EdgeList::<E>::new)
-            .insert(edge.clone());
+            .entry(ReferenceId::new(sub, pred.to_owned()))
+            .or_insert_with(EdgeList::new)
+            .push_back(edge.to_owned());
 
         self.incoming
-            .entry(EdgeHash::incoming(&edge))
-            .or_insert_with(EdgeList::<E>::new)
-            .insert(edge.clone());
+            .entry(ReferenceId::new(obj, pred.to_owned()))
+            .or_insert_with(EdgeList::new)
+            .push_back(edge.to_owned());
 
         Ok(())
     }

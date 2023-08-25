@@ -1,41 +1,38 @@
-use super::UniqueId;
-use std::hash::Hash;
+use std::{fmt::Debug, rc::Rc};
 
-pub trait Identify {
-    fn identity(&self) -> String;
+#[derive(Debug, Clone)]
+pub struct Edge<NodeId, EdgeId> {
+    subject: NodeId,
+    object: NodeId,
+    predicate: EdgeId,
+    data: Option<Rc<dyn IEdge>>,
 }
 
-#[derive(Debug, Hash, Ord, PartialOrd, Eq, PartialEq)]
-pub struct Edge<E>
-where
-    E: Sized + Hash + Eq + Identify,
-{
-    subject: UniqueId,
-    object: UniqueId,
-    predicate: E,
-}
-
-impl<E> Edge<E>
-where
-    E: Hash + Eq + Identify,
-{
-    pub fn new(sub: UniqueId, obj: UniqueId, pred: E) -> Self {
+impl<NodeId, EdgeId> Edge<NodeId, EdgeId> {
+    pub fn new(subject: NodeId, object: NodeId, pred: EdgeId, data: Option<Rc<dyn IEdge>>) -> Self {
         Edge {
-            subject: sub,
-            object: obj,
+            subject: subject,
+            object: object,
             predicate: pred,
+            data: data,
         }
     }
 
-    pub fn subject(&self) -> &UniqueId {
+    pub fn subject(&self) -> &NodeId {
         &self.subject
     }
 
-    pub fn object(&self) -> &UniqueId {
+    pub fn object(&self) -> &NodeId {
         &self.object
     }
 
-    pub fn predicate(&self) -> &E {
+    pub fn predicate(&self) -> &EdgeId {
         &self.predicate
     }
+
+    pub fn data(&self) -> Option<Rc<dyn IEdge>> {
+        self.data.clone()
+    }
 }
+
+pub trait IEdge: Debug {}

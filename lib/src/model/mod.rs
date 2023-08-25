@@ -1,27 +1,34 @@
 mod person;
-use crate::db::Identify;
+
 pub use person::Person;
 
-#[derive(Debug)]
+use crate::db::Identity;
+
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum NodeKind {
-    Person(Person),
+    Person(String),
 }
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum EdgeKind {
     Author,
 }
 
-impl Identify for EdgeKind {
-    fn identity(&self) -> String {
-        match self {
-            EdgeKind::Author => "author".to_owned(),
+impl Identity for NodeKind {}
+impl Identity for EdgeKind {}
+
+impl From<NodeKind> for String {
+    fn from(value: NodeKind) -> Self {
+        match value {
+            NodeKind::Person(_) => "person".to_owned(),
         }
     }
 }
 
 impl From<EdgeKind> for String {
     fn from(value: EdgeKind) -> Self {
-        value.identity()
+        match value {
+            EdgeKind::Author => "author".to_owned(),
+        }
     }
 }
