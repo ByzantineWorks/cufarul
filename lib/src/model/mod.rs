@@ -5,30 +5,30 @@ pub use person::Person;
 use crate::db::Identity;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum NodeKind {
+pub enum CollectionKey {
     Person(String),
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum EdgeKind {
+pub enum ReferenceKey {
     Author,
 }
 
-impl Identity for NodeKind {}
-impl Identity for EdgeKind {}
+impl Identity for CollectionKey {}
+impl Identity for ReferenceKey {}
 
-impl From<NodeKind> for String {
-    fn from(value: NodeKind) -> Self {
+impl From<CollectionKey> for String {
+    fn from(value: CollectionKey) -> Self {
         match value {
-            NodeKind::Person(_) => "person".to_owned(),
+            CollectionKey::Person(_) => "person".to_owned(),
         }
     }
 }
 
-impl From<EdgeKind> for String {
-    fn from(value: EdgeKind) -> Self {
+impl From<ReferenceKey> for String {
+    fn from(value: ReferenceKey) -> Self {
         match value {
-            EdgeKind::Author => "author".to_owned(),
+            ReferenceKey::Author => "author".to_owned(),
         }
     }
 }

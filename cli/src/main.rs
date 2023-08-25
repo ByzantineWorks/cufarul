@@ -1,6 +1,6 @@
 use crate::args::Args;
 use cufarul::{
-    model::{EdgeKind, NodeKind, Person},
+    model::{CollectionKey, Person, ReferenceKey},
     repo::Repository,
 };
 use std::{process::exit, rc::Rc};
@@ -15,7 +15,7 @@ fn main() {
             .unwrap()
             .as_path(),
     )
-    .and_then(|spec| Repository::<NodeKind, EdgeKind>::try_from(spec))
+    .and_then(|spec| Repository::<CollectionKey, ReferenceKey>::try_from(spec))
     .unwrap_or_else(|e| {
         eprintln!("Error: {e}");
         exit(1);
@@ -28,16 +28,22 @@ fn main() {
     );
 
     repo.db_mut()
-        .insert_node(NodeKind::Person("spanac".to_owned()), Rc::new(Person {}))
+        .insert_node(
+            CollectionKey::Person("spanac".to_owned()),
+            Rc::new(Person {}),
+        )
         .expect("insert: spanac: something went wrong");
     repo.db_mut()
-        .insert_node(NodeKind::Person("macaroana".to_owned()), Rc::new(Person {}))
+        .insert_node(
+            CollectionKey::Person("macaroana".to_owned()),
+            Rc::new(Person {}),
+        )
         .expect("insert: macaroana: something went wrong");
     repo.db_mut()
         .insert_edge(
-            NodeKind::Person("spanac".to_owned()),
-            NodeKind::Person("macaroana".to_owned()),
-            EdgeKind::Author,
+            CollectionKey::Person("spanac".to_owned()),
+            CollectionKey::Person("macaroana".to_owned()),
+            ReferenceKey::Author,
             None,
         )
         .expect("insert: edge: something went wrong");
