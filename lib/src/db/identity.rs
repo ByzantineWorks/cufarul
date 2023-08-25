@@ -1,6 +1,4 @@
-use std::hash::Hash;
-
-use super::Identity;
+use std::{fmt::Debug, hash::Hash};
 
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ReferenceId<NodeId, EdgeId>
@@ -23,4 +21,9 @@ where
             edge: edge,
         }
     }
+}
+
+pub trait Identity:
+    Clone + Debug + Hash + Ord + PartialOrd + Eq + PartialEq + Into<String>
+{
 }
