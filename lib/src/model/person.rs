@@ -1,7 +1,7 @@
 use super::Model;
 use crate::{
     db::INode,
-    serde::{GenericProperty, NonEmptyString, TranslatableProperty},
+    serde::{GenericProperty, NonEmptyString, ReferenceProperty, TranslatableProperty},
 };
 use serde::{Deserialize, Serialize};
 
@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub struct Person {
     something: GenericProperty<NonEmptyString>,
     name: TranslatableProperty,
+    father: ReferenceProperty,
 }
 
 impl INode for Person {}

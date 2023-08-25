@@ -9,6 +9,7 @@ pub enum Error {
     InternalError(String),
     MissingTranslation,
     MissingValue,
+    InvalidReference(String),
 }
 
 impl Display for Error {
@@ -23,6 +24,9 @@ impl Display for Error {
             Error::InternalError(msg) => f.write_fmt(format_args!("internal error: {msg}")),
             Error::MissingTranslation => f.write_str("no translation given"),
             Error::MissingValue => f.write_str("propery cannot be empty"),
+            Error::InvalidReference(reference) => {
+                f.write_fmt(format_args!("{reference}: invalid reference"))
+            }
         }
     }
 }
