@@ -8,6 +8,7 @@ pub enum Error {
     DeserializationError(String),
     InternalError(String),
     MissingTranslation,
+    MissingValue,
 }
 
 impl Display for Error {
@@ -21,6 +22,7 @@ impl Display for Error {
             }
             Error::InternalError(msg) => f.write_fmt(format_args!("internal error: {msg}")),
             Error::MissingTranslation => f.write_str("no translation given"),
+            Error::MissingValue => f.write_str("propery cannot be empty"),
         }
     }
 }

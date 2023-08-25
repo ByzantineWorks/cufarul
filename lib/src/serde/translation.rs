@@ -1,8 +1,8 @@
-use super::{property::Property, Error, Lang, Result};
+use super::{property::Property, Error, Lang, NonEmptyString, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-type TranslationMapInternal = HashMap<Lang, String>;
+type TranslationMapInternal = HashMap<Lang, NonEmptyString>;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(try_from = "TranslationMapInternal")]
@@ -26,7 +26,7 @@ impl From<TranslationMap> for TranslationMapInternal {
 }
 
 impl TranslationMap {
-    pub fn translation(&self, lang: Lang) -> Option<&String> {
+    pub fn translation(&self, lang: Lang) -> Option<&NonEmptyString> {
         self.0.get(&lang)
     }
 }
@@ -40,8 +40,8 @@ pub struct TranslatableProperty {
     default_lang: Option<Lang>,
 }
 
-impl Property<String> for TranslatableProperty {
-    fn value(&self, lang: Option<Lang>) -> Option<String> {
+impl Property<NonEmptyString> for TranslatableProperty {
+    fn value(&self, lang: Option<Lang>) -> Option<NonEmptyString> {
         let language = lang.or(self.default_lang.to_owned()).unwrap_or_default();
 
         self.data
