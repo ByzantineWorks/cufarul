@@ -1,10 +1,10 @@
 use super::{LoadSpec, RepositorySpec};
 use crate::{
-    db::Database,
+    db::{Database, ReferenceList},
     error::{Error, Result},
     model::{CollectionKey, Model, Person, ReferenceKey},
 };
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
 
 const SUPPORTED_VERSION: u8 = 0;
 
@@ -42,6 +42,10 @@ impl Repository {
     }
 
     pub fn sync(&mut self) -> Result<()> {
+        /* Todo: can the types be defined in one place? */
+        let mut reference_map: HashMap<CollectionKey, ReferenceList<CollectionKey, ReferenceKey>> =
+            HashMap::new();
+
         let load_spec = LoadSpec::try_from(self.spec.to_owned())?;
         for entry in load_spec {
             let path = entry.path().unwrap_or(
@@ -53,11 +57,28 @@ impl Repository {
             );
 
             let key = CollectionKey::new(&entry.collection(), entry.id().to_owned())?;
-            let data = match key {
+            let data = match &key {
                 CollectionKey::Person(_) => Person::load(path)?,
             };
 
-            let _ = self.db.insert_node(key, data);
+            let _ = self.db.insert_node(key.to_owned(), data.to_owned());
+            reference_map.insert(key, data.references());
+        }
+
+        /* Todo: check if references are circular */
+
+        /* parse references */
+        for (from, spec) in reference_map {
+            for dest in spec {
+                /* check if target exists */
+                if !self.db.has_node(dest.target.to_owned()) {
+                    return Err(super::Error::InvalidReference(dest.target.to_string()).into());
+                }
+
+                let _ = self
+                    .db
+                    .insert_edge(from.to_owned(), dest.target, dest.predicate, None)?;
+            }
         }
 
         Ok(())

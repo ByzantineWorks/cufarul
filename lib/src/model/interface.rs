@@ -8,7 +8,10 @@ pub trait Model: INode
 where
     Self: 'static + DeserializeOwned,
 {
-    fn load(path: PathBuf) -> Result<Rc<dyn INode>> {
+    fn load(
+        path: PathBuf,
+    ) -> Result<Rc<dyn INode<NodeId = <Self as INode>::NodeId, EdgeId = <Self as INode>::EdgeId>>>
+    {
         match std::fs::read_to_string(path.to_owned()) {
             Ok(content) => Ok(Rc::new(toml::from_str::<Self>(&content)?)),
             Err(error) => Err(Error::InternalError(format!(

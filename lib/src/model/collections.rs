@@ -2,7 +2,7 @@ use crate::{
     db::Identity,
     repo::{Error, Result},
 };
-use std::slice::Iter;
+use std::{fmt::Display, slice::Iter};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CollectionKey {
@@ -14,7 +14,17 @@ impl Identity for CollectionKey {}
 impl From<CollectionKey> for String {
     fn from(value: CollectionKey) -> Self {
         match value {
-            CollectionKey::Person(_) => "person".to_owned(),
+            CollectionKey::Person(_) => "people".to_owned(),
+        }
+    }
+}
+
+impl Display for CollectionKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Person(id) => {
+                f.write_fmt(format_args!("@{}/{}", String::from(self.to_owned()), id))
+            }
         }
     }
 }

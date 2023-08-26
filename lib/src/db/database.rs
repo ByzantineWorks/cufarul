@@ -7,7 +7,7 @@ use std::{
 
 type EdgeList<NodeId, EdgeId> = LinkedList<Edge<NodeId, EdgeId>>;
 
-type NodeMap<NodeId> = BTreeMap<NodeId, Node<NodeId>>;
+type NodeMap<NodeId, EdgeId> = BTreeMap<NodeId, Node<NodeId, EdgeId>>;
 type EdgeMap<NodeId, EdgeId> = BTreeMap<ReferenceId<NodeId, EdgeId>, EdgeList<NodeId, EdgeId>>;
 
 #[derive(Debug)]
@@ -16,7 +16,7 @@ where
     NodeId: Identity,
     EdgeId: Identity,
 {
-    nodes: NodeMap<NodeId>,
+    nodes: NodeMap<NodeId, EdgeId>,
     incoming: EdgeMap<NodeId, EdgeId>,
     outgoing: EdgeMap<NodeId, EdgeId>,
 }
@@ -40,7 +40,11 @@ where
     NodeId: Identity,
     EdgeId: Identity,
 {
-    pub fn insert_node(&mut self, id: NodeId, data: Rc<dyn INode>) -> Result<()> {
+    pub fn insert_node(
+        &mut self,
+        id: NodeId,
+        data: Rc<dyn INode<NodeId = NodeId, EdgeId = EdgeId>>,
+    ) -> Result<()> {
         self.nodes
             .entry(id.to_owned())
             .or_insert(Node::new(id.to_owned(), data));
@@ -81,5 +85,9 @@ where
             .push_back(edge.to_owned());
 
         Ok(())
+    }
+
+    pub fn has_node(&self, node: NodeId) -> bool {
+        self.nodes.contains_key(&node)
     }
 }
