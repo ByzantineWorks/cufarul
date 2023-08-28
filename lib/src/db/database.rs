@@ -1,7 +1,6 @@
 use super::{node::INode, Edge, Error, IEdge, Identity, Node, ReferenceId, Result};
 use std::{
-    collections::{BTreeMap, LinkedList},
-    fmt::Debug,
+    collections::{btree_map::Iter, BTreeMap, LinkedList},
     rc::Rc,
 };
 
@@ -89,5 +88,9 @@ where
 
     pub fn has_node(&self, node: NodeId) -> bool {
         self.nodes.contains_key(&node)
+    }
+
+    pub fn nodes(&self) -> Iter<NodeId, Node<NodeId, EdgeId>> {
+        self.nodes.iter()
     }
 }

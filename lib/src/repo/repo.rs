@@ -1,10 +1,10 @@
 use super::{LoadSpec, RepositorySpec};
 use crate::{
-    db::{Database, ReferenceList},
+    db::{Database, INode, ReferenceList},
     error::{Error, Result},
-    model::{CollectionKey, Model, Person, ReferenceKey},
+    model::{CollectionKey, Person, ReferenceKey},
 };
-use std::{collections::HashMap, fmt::Debug};
+use std::{collections::HashMap, fmt::Debug, rc::Rc};
 
 const SUPPORTED_VERSION: u8 = 0;
 
@@ -57,8 +57,8 @@ impl Repository {
             );
 
             let key = CollectionKey::new(&entry.collection(), entry.id().to_owned())?;
-            let data = match &key {
-                CollectionKey::Person(_) => Person::load(path)?,
+            let data: Rc<dyn INode<NodeId = CollectionKey, EdgeId = ReferenceKey>> = match &key {
+                CollectionKey::Person(_) => crate::model::from_file::<Person>(path)?,
             };
 
             let _ = self.db.insert_node(key.to_owned(), data.to_owned());

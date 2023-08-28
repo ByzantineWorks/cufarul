@@ -1,14 +1,17 @@
 use crate::args::Args;
-use cufarul::{error::Result, repo::Repository};
+use cufarul::{
+    error::Result,
+    model::{CollectionKey, Model, Person},
+    repo::{Repository, RepositorySpec},
+};
 
 mod args;
 
 fn main() -> Result<()> {
     let args: Args = argh::from_env();
-    let mut repo = cufarul::repo::RepositorySpec::from_path(
+    let mut repo = RepositorySpec::from_path(
         args.repo
-            .or(Some(std::env::current_dir().unwrap_or_default()))
-            .unwrap()
+            .unwrap_or(std::env::current_dir().unwrap_or_default())
             .as_path(),
     )
     .map_err(|err| err.into())
@@ -23,6 +26,17 @@ fn main() -> Result<()> {
     println!("Syncing...");
     repo.sync()?;
 
-    println!("{:#?}", repo.db());
+    for (id, node) in repo.db().nodes() {
+        let data = node.data();
+        let object: &dyn Model = match id {
+            CollectionKey::Person(_) => data
+                .as_any()
+                .downcast_ref::<Person>()
+                .expect("internal error"),
+        };
+
+        let out = serde_json::to_string(object).expect("error serializing");
+        println!("{id}: {out}");
+    }
     Ok(())
 }

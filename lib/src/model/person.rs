@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use super::Model;
 use crate::{
     db::{INode, ReferenceSpec},
@@ -26,6 +28,10 @@ impl INode for Person {
             CollectionKey::Person(id),
             ReferenceKey::Author,
         )]
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 impl Model for Person {}

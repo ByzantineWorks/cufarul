@@ -1,4 +1,4 @@
-use std::{fmt::Debug, rc::Rc};
+use std::{any::Any, fmt::Debug, rc::Rc};
 
 use super::ReferenceList;
 
@@ -22,10 +22,11 @@ impl<NodeId, EdgeId> Node<NodeId, EdgeId> {
     }
 }
 
-pub trait INode: Debug {
+pub trait INode: Debug + Any {
     type NodeId;
     type EdgeId;
     fn references(&self) -> ReferenceList<Self::NodeId, Self::EdgeId>;
+    fn as_any(&self) -> &dyn Any;
 }
 
-//impl INode for () {}
+// impl INode for () {}
