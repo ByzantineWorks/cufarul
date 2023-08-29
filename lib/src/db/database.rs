@@ -1,8 +1,5 @@
 use super::{node::INode, Edge, Error, IEdge, Identity, Node, ReferenceId, Result};
-use std::{
-    collections::{btree_map::Iter, BTreeMap, LinkedList},
-    rc::Rc,
-};
+use std::{collections::BTreeMap, collections::LinkedList, rc::Rc};
 
 type EdgeList<NodeId, EdgeId> = LinkedList<Edge<NodeId, EdgeId>>;
 
@@ -90,7 +87,33 @@ where
         self.nodes.contains_key(&node)
     }
 
-    pub fn nodes(&self) -> Iter<NodeId, Node<NodeId, EdgeId>> {
+    pub fn get_node(&self, node: NodeId) -> Option<&Node<NodeId, EdgeId>> {
+        self.nodes.get(&node)
+    }
+
+    pub fn nodes(&self) -> std::collections::btree_map::Iter<NodeId, Node<NodeId, EdgeId>> {
         self.nodes.iter()
+    }
+
+    pub fn edges_from(
+        &self,
+        target: NodeId,
+        predicate: EdgeId,
+    ) -> Option<std::collections::linked_list::Iter<Edge<NodeId, EdgeId>>> {
+        let reference = ReferenceId::new(target, predicate);
+        self.outgoing
+            .get(&reference)
+            .and_then(|entry| Some(entry.iter()))
+    }
+
+    pub fn edges_to(
+        &self,
+        target: NodeId,
+        predicate: EdgeId,
+    ) -> Option<std::collections::linked_list::Iter<Edge<NodeId, EdgeId>>> {
+        let reference = ReferenceId::new(target, predicate);
+        self.incoming
+            .get(&reference)
+            .and_then(|entry| Some(entry.iter()))
     }
 }

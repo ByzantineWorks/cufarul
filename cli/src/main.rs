@@ -1,7 +1,7 @@
 use crate::args::Args;
 use cufarul::{
     error::Result,
-    model::{CollectionKey, Model, Person},
+    model::{CollectionKey, Model, Person, ReferenceKey},
     repo::{Repository, RepositorySpec},
 };
 
@@ -38,5 +38,27 @@ fn main() -> Result<()> {
         let out = serde_json::to_string(object).expect("error serializing");
         println!("{id}: {out}");
     }
+
+    let author = CollectionKey::Person("macaroana".to_owned());
+    println!("Showing all nodes authored by {author}:");
+
+    if let Some(edges) = repo.db().edges_to(author, ReferenceKey::Author) {
+        for entry in edges {
+            let object = repo
+                .db()
+                .get_node(entry.object().to_owned())
+                .expect("oops")
+                .data()
+                .clone();
+            let data: &dyn Model = object.as_any().downcast_ref::<Person>().expect("oops");
+            println!(
+                "{} authored {}: {}",
+                entry.subject(),
+                entry.object(),
+                serde_json::to_string(data).expect("oops")
+            );
+        }
+    }
+
     Ok(())
 }

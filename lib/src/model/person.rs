@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 pub struct Person {
     something: GenericProperty<NonEmptyString>,
     name: TranslatableProperty,
-    father: ReferenceProperty,
+    author: ReferenceProperty,
 }
 
 impl INode for Person {
@@ -21,7 +21,7 @@ impl INode for Person {
     type EdgeId = ReferenceKey;
 
     fn references(&self) -> crate::db::ReferenceList<Self::NodeId, Self::EdgeId> {
-        let (collection, id) = self.father.value(None).unwrap();
+        let (collection, id) = self.author.value(None).unwrap();
         /* Todo: proper error reporting in case of illegal reference */
         assert!(collection.unwrap_or("people".to_owned()).eq("people"));
         vec![ReferenceSpec::new(
