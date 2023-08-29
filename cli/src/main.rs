@@ -39,7 +39,7 @@ fn main() -> Result<()> {
         println!("{id}: {out}");
     }
 
-    let author = CollectionKey::Person("macaroana".to_owned());
+    let author = CollectionKey::Person("ffddf9b9-1552-40a0-aefa-ef660479d329".to_owned());
     println!("Showing all nodes authored by {author}:");
 
     if let Some(edges) = repo.db().edges_to(author, ReferenceKey::Author) {

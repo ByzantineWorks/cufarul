@@ -1,4 +1,6 @@
-use super::{node::INode, Edge, Error, IEdge, Identity, Node, ReferenceId, Result};
+use super::{
+    identity::Allowed, node::INode, Edge, Error, IEdge, Identity, Node, ReferenceId, Result,
+};
 use std::{collections::BTreeMap, collections::LinkedList, rc::Rc};
 
 type EdgeList<NodeId, EdgeId> = LinkedList<Edge<NodeId, EdgeId>>;
@@ -10,7 +12,7 @@ type EdgeMap<NodeId, EdgeId> = BTreeMap<ReferenceId<NodeId, EdgeId>, EdgeList<No
 pub struct Database<NodeId, EdgeId>
 where
     NodeId: Identity,
-    EdgeId: Identity,
+    EdgeId: Identity + Allowed<NodeId>,
 {
     nodes: NodeMap<NodeId, EdgeId>,
     incoming: EdgeMap<NodeId, EdgeId>,
@@ -20,7 +22,7 @@ where
 impl<NodeId, EdgeId> Default for Database<NodeId, EdgeId>
 where
     NodeId: Identity,
-    EdgeId: Identity,
+    EdgeId: Identity + Allowed<NodeId>,
 {
     fn default() -> Self {
         Database {
@@ -34,7 +36,7 @@ where
 impl<NodeId, EdgeId> Database<NodeId, EdgeId>
 where
     NodeId: Identity,
-    EdgeId: Identity,
+    EdgeId: Identity + Allowed<NodeId>,
 {
     pub fn insert_node(
         &mut self,
@@ -61,6 +63,14 @@ where
 
         if !self.nodes.contains_key(&obj) {
             return Err(Error::InvalidUniqueId(obj.into()));
+        }
+
+        if !pred.is_allowed(&sub, &obj) {
+            return Err(Error::IllegalReference(
+                sub.to_string(),
+                pred.to_string(),
+                obj.to_string(),
+            ));
         }
 
         let edge = Edge::new(
