@@ -1,12 +1,14 @@
-use std::any::Any;
-
 use super::Model;
 use crate::{
     db::{INode, ReferenceSpec},
     model::{CollectionKey, ReferenceKey},
-    serde::{GenericProperty, NonEmptyString, Property, ReferenceProperty, TranslatableProperty},
+    serde::{
+        GenericProperty, LinkProperty, NonEmptyString, Property, ReferenceProperty,
+        TranslatableProperty,
+    },
 };
 use serde::{Deserialize, Serialize};
+use std::any::Any;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -14,6 +16,7 @@ pub struct Person {
     something: GenericProperty<NonEmptyString>,
     name: TranslatableProperty,
     author: ReferenceProperty,
+    about: LinkProperty,
 }
 
 impl INode for Person {
