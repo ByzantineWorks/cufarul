@@ -1,7 +1,6 @@
-use super::{Error, RepositorySpec, Result};
-use crate::model::CollectionKey;
 use std::path::PathBuf;
 
+pub type Index = Vec<LoadPath>;
 pub struct LoadPath {
     collection: String,
     id: String,
@@ -33,26 +32,6 @@ impl From<PathBuf> for LoadPath {
             id: id,
             path: Some(path),
         }
-    }
-}
-
-pub type LoadSpec = Vec<LoadPath>;
-
-impl TryFrom<RepositorySpec> for LoadSpec {
-    type Error = Error;
-    fn try_from(spec: RepositorySpec) -> Result<Self> {
-        let mut res = LoadSpec::new();
-        for collection in CollectionKey::iter() {
-            let collection_dir = spec.root().join(collection.to_owned());
-            for entry in std::fs::read_dir(collection_dir)? {
-                let path = entry?.path();
-                if path.is_file() && path.extension().unwrap_or_default() == "toml" {
-                    res.push(LoadPath::from(path));
-                }
-            }
-        }
-
-        Ok(res)
     }
 }
 

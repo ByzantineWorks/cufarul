@@ -1,24 +1,24 @@
 use super::{Model, ReferenceKey};
 use crate::{
     db::NodeLike,
-    serde::{GenericProperty, LinkProperty, NonEmptyString, TranslatableProperty},
+    model::PersonId,
+    serde::{Property, ReferenceProperty},
 };
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct Person {
-    something: GenericProperty<NonEmptyString>,
-    name: TranslatableProperty,
-    about: LinkProperty,
+pub struct Composition {
+    author: ReferenceProperty,
 }
 
-impl Model for Person {}
-impl NodeLike for Person {
+impl Model for Composition {}
+impl NodeLike for Composition {
     type ReferenceId = ReferenceKey;
 
     fn references(&self) -> Vec<Self::ReferenceId> {
-        vec![]
+        let (_, author_id) = self.author.value(None).unwrap();
+        vec![ReferenceKey::AuthoredBy(PersonId::new(author_id))]
     }
 
     fn as_any(&self) -> &dyn std::any::Any {

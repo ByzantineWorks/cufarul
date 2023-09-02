@@ -1,34 +1,31 @@
+use super::{CollectionKey, CompositionId, PersonId};
+use crate::db::{EdgeLike, ReferenceIdentity};
 use std::fmt::Display;
-
-use crate::db::{Allowed, Identity};
-
-use super::CollectionKey;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ReferenceKey {
-    Author,
-}
-
-impl Identity for ReferenceKey {}
-
-impl From<ReferenceKey> for String {
-    fn from(value: ReferenceKey) -> Self {
-        match value {
-            ReferenceKey::Author => "author".to_owned(),
-        }
-    }
-}
-
-impl Allowed<CollectionKey> for ReferenceKey {
-    fn is_allowed(&self, from: &CollectionKey, to: &CollectionKey) -> bool {
-        match (from, self, to) {
-            _ => false,
-        }
-    }
+    Authored(CompositionId),
+    AuthoredBy(PersonId),
 }
 
 impl Display for ReferenceKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(String::from(self.to_owned()).as_str())
+        let predicate = match self {
+            Self::Authored(_) => "authored",
+            Self::AuthoredBy(_) => "authored-by",
+        };
+
+        f.write_fmt(format_args!("{} -> {}", predicate, self.object()))
     }
 }
+
+impl ReferenceIdentity<CollectionKey> for ReferenceKey {
+    fn object(&self) -> CollectionKey {
+        match self {
+            ReferenceKey::Authored(id) => CollectionKey::Composition(id.to_owned()),
+            ReferenceKey::AuthoredBy(id) => CollectionKey::Person(id.to_owned()),
+        }
+    }
+}
+
+impl EdgeLike for () {}

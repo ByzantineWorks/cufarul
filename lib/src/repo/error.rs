@@ -6,6 +6,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     NoRepositoryFound,
     UnsupportedVersion(u8),
+    MissingCollection(String),
     InvalidCollectionKey(String),
     InvalidReference(String),
     IoError(std::io::Error),
@@ -28,6 +29,9 @@ impl Display for Error {
             Self::IoError(error) => f.write_fmt(format_args!("could not read repository: {error}")),
             Self::DeError(error) => {
                 f.write_fmt(format_args!("invalid repository configuration: {error}"))
+            }
+            Self::MissingCollection(collection) => {
+                f.write_fmt(format_args!("missing collection directory: {collection}"))
             }
         }
     }

@@ -1,14 +1,11 @@
-use super::{CollectionKey, ReferenceKey};
-use crate::db::INode;
+use super::ReferenceKey;
+use crate::db::NodeLike;
 use crate::serde::{Error, Result};
 use serde::de::DeserializeOwned;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-pub trait Model:
-    INode<NodeId = CollectionKey, EdgeId = ReferenceKey> + erased_serde::Serialize
-{
-}
+pub trait Model: NodeLike<ReferenceId = ReferenceKey> + erased_serde::Serialize {}
 erased_serde::serialize_trait_object!(Model);
 
 pub fn from_file<T>(path: PathBuf) -> Result<Rc<T>>
