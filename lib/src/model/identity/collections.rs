@@ -76,7 +76,11 @@ macro_rules! EntitiyKey {
 EntitiyKey!(
     CollectionKey,
     (Person, PersonId, "people"),
-    (Composition, CompositionId, "compositions")
+    (Composition, CompositionId, "compositions"),
+    (Performance, PerformanceId, "performances"),
+    (Publication, PublicationId, "publications"),
+    (Taxonomy, TaxonomyId, "taxonomies"),
+    (Text, TextId, "texts")
 );
 
 // TODO: use smarter macros!

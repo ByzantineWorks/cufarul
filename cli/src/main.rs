@@ -2,7 +2,7 @@ use crate::args::Args;
 use cufarul::{
     db::Database,
     error::Result,
-    model::{CollectionKey, Composition, Model, Person},
+    model::{CollectionKey, Composition, Model, Person, Publication, Taxonomy, Text},
     repo::{CufarulRepository, Repository, RepositorySpec},
 };
 
@@ -36,6 +36,22 @@ fn main() -> Result<()> {
             CollectionKey::Composition(_) => node
                 .as_any()
                 .downcast_ref::<Composition>()
+                .expect("internal error"),
+            CollectionKey::Publication(_) => node
+                .as_any()
+                .downcast_ref::<Publication>()
+                .expect("internal error"),
+            CollectionKey::Performance(_) => node
+                .as_any()
+                .downcast_ref::<Composition>()
+                .expect("internal error"),
+            CollectionKey::Text(_) => node
+                .as_any()
+                .downcast_ref::<Text>()
+                .expect("internal error"),
+            CollectionKey::Taxonomy(_) => node
+                .as_any()
+                .downcast_ref::<Taxonomy>()
                 .expect("internal error"),
         };
 

@@ -7,7 +7,9 @@ use super::{
 };
 use crate::{
     db::{Database, Datastore, EdgeId, NodeLike, ReferenceIdentity},
-    model::{CollectionKey, Composition, Person, ReferenceKey},
+    model::{
+        CollectionKey, Composition, Performance, Person, Publication, ReferenceKey, Taxonomy, Text,
+    },
 };
 use std::rc::Rc;
 
@@ -70,6 +72,10 @@ impl Repository for CufarulRepository {
             let data: Rc<dyn NodeLike<ReferenceId = ReferenceKey>> = match &key {
                 CollectionKey::Person(_) => crate::model::from_file::<Person>(path)?,
                 CollectionKey::Composition(_) => crate::model::from_file::<Composition>(path)?,
+                CollectionKey::Performance(_) => crate::model::from_file::<Performance>(path)?,
+                CollectionKey::Publication(_) => crate::model::from_file::<Publication>(path)?,
+                CollectionKey::Text(_) => crate::model::from_file::<Text>(path)?,
+                CollectionKey::Taxonomy(_) => crate::model::from_file::<Taxonomy>(path)?,
             };
 
             self.db.insert_node(key.to_owned(), data.clone())?;

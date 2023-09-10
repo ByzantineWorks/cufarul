@@ -1,5 +1,4 @@
-use super::property::{GenericProperty, LinkProperty, TranslatableProperty};
-use super::serde::NonEmptyString;
+use super::property::{LinkProperty, TranslatableProperty};
 use super::{Model, ReferenceKey};
 use crate::db::NodeLike;
 use serde::{Deserialize, Serialize};
@@ -7,9 +6,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Person {
-    something: GenericProperty<NonEmptyString>,
     name: TranslatableProperty,
-    about: LinkProperty,
+    about: Option<LinkProperty>,
 }
 
 impl Model for Person {}

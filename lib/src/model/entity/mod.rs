@@ -1,13 +1,20 @@
 mod composition;
+mod performance;
 mod person;
+mod publication;
+mod taxonomy;
+mod text;
 
 pub use composition::Composition;
+pub use performance::Performance;
 pub use person::Person;
+pub use publication::{Publication, Reference};
+pub use taxonomy::Taxonomy;
+pub use text::Text;
 
 use super::error;
 use super::identity;
 use super::property;
-use super::serde;
 use super::ReferenceKey;
 use crate::db::NodeLike;
 
