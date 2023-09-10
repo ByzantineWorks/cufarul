@@ -29,17 +29,17 @@ macro_rules! EntityId {
 
 #[macro_export]
 macro_rules! EntitiyKey {
-    ($name:ident, $(($entry:ident, $id:literal)), +) => {
+    ($name:ident, $(($entry:ident, $type:ident, $id:literal)), +) => {
         pub mod types {
             $(
-                EntityId!($entry);
+                EntityId!($type);
             )+
         }
 
         #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
         pub enum $name {
             $(
-                $entry(self::types::$entry),
+                $entry(self::types::$type),
             )+
         }
 
@@ -64,7 +64,7 @@ macro_rules! EntitiyKey {
             pub fn from_collection_and_id(collection: String, id: String) -> Result<Self> {
                 match collection.as_str() {
                     $(
-                        $id => Ok(Self::$entry(self::types::$entry::new(id))),
+                        $id => Ok(Self::$entry(self::types::$type::new(id))),
                     )+
                     _ => Err(Error::InvalidCollectionKey(collection)),
                 }
@@ -75,8 +75,8 @@ macro_rules! EntitiyKey {
 
 EntitiyKey!(
     CollectionKey,
-    (Person, "people"),
-    (Composition, "compositions")
+    (Person, PersonId, "people"),
+    (Composition, CompositionId, "compositions")
 );
 
 // TODO: use smarter macros!

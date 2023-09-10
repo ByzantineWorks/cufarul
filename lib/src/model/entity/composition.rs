@@ -1,4 +1,4 @@
-use super::identity::Person;
+use super::identity::PersonId;
 use super::property::{Property, ReferenceProperty};
 use super::{Model, ReferenceKey};
 use crate::db::NodeLike;
@@ -16,7 +16,7 @@ impl NodeLike for Composition {
 
     fn references(&self) -> Vec<Self::ReferenceId> {
         let (_, author_id) = self.author.value(None).unwrap();
-        vec![ReferenceKey::AuthoredBy(Person::new(author_id))]
+        vec![ReferenceKey::AuthoredBy(PersonId::new(author_id))]
     }
 
     fn as_any(&self) -> &dyn std::any::Any {

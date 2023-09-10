@@ -4,8 +4,8 @@ use std::fmt::Display;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ReferenceKey {
-    Authored(super::Composition),
-    AuthoredBy(super::Person),
+    Authored(super::CompositionId),
+    AuthoredBy(super::PersonId),
 }
 
 impl Display for ReferenceKey {
