@@ -16,3 +16,4 @@ serde = { version = "1.0.185", features = ["derive"] }
 toml = "0.7.6"
 erased-serde = "0.3.31"
 url = "2.4.1"
+regex = "1.9.5"
