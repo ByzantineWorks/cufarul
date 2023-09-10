@@ -6,7 +6,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     RepositoryError(crate::repo::Error),
     DatabaseError(crate::db::Error),
-    SerdeError(crate::serde::Error),
+    ModelError(crate::model::Error),
 }
 
 impl Display for Error {
@@ -14,7 +14,7 @@ impl Display for Error {
         match self {
             Error::RepositoryError(error) => f.write_fmt(format_args!("repository error: {error}")),
             Error::DatabaseError(error) => f.write_fmt(format_args!("database error: {error}")),
-            Error::SerdeError(error) => f.write_fmt(format_args!("load error: {error}")),
+            Error::ModelError(error) => f.write_fmt(format_args!("model error: {error}")),
         }
     }
 }
@@ -31,8 +31,8 @@ impl From<crate::db::Error> for Error {
     }
 }
 
-impl From<crate::serde::Error> for Error {
-    fn from(value: crate::serde::Error) -> Self {
-        Error::SerdeError(value)
+impl From<crate::model::Error> for Error {
+    fn from(value: crate::model::Error) -> Self {
+        Error::ModelError(value)
     }
 }

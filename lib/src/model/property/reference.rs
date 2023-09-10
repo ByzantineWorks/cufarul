@@ -1,4 +1,4 @@
-use super::{property::Property, Error, Result};
+use super::{Error, Property, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 

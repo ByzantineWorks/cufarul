@@ -1,4 +1,4 @@
-use super::property::Property;
+use super::Property;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

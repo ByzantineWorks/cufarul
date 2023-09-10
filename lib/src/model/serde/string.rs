@@ -1,4 +1,4 @@
-use super::{Error, Result};
+use super::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

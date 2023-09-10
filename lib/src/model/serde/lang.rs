@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::{Error, Result};
+use super::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -1,11 +1,11 @@
-use super::{CollectionKey, CompositionId, PersonId};
+use super::CollectionKey;
 use crate::db::{EdgeLike, ReferenceIdentity};
 use std::fmt::Display;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ReferenceKey {
-    Authored(CompositionId),
-    AuthoredBy(PersonId),
+    Authored(super::Composition),
+    AuthoredBy(super::Person),
 }
 
 impl Display for ReferenceKey {

@@ -1,4 +1,4 @@
-use super::{property::Property, Error, Lang, NonEmptyString, Result};
+use super::{Error, Lang, NonEmptyString, Property, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

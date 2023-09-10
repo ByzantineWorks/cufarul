@@ -1,8 +1,7 @@
+use super::property::{GenericProperty, LinkProperty, TranslatableProperty};
+use super::serde::NonEmptyString;
 use super::{Model, ReferenceKey};
-use crate::{
-    db::NodeLike,
-    serde::{GenericProperty, LinkProperty, NonEmptyString, TranslatableProperty},
-};
+use crate::db::NodeLike;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

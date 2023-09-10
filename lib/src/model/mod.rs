@@ -1,15 +1,12 @@
-mod collections;
-mod composition;
+mod entity;
+mod error;
 mod identity;
-mod interface;
-mod person;
-mod references;
+mod property;
+mod serde;
 
-pub use collections::CollectionKey;
-pub use composition::Composition;
-pub use identity::{CompositionId, PersonId};
-pub use interface::Model;
-pub use person::Person;
-pub use references::ReferenceKey;
+pub use self::entity::{Composition, Model, Person};
+pub use self::error::{Error, Result};
+pub use self::identity::CollectionKey;
+pub use self::identity::ReferenceKey;
 
-pub use interface::from_file;
+pub use self::entity::from_file;
