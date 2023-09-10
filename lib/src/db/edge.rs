@@ -1,10 +1,9 @@
+use super::node::NodeIdentity;
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
     rc::Rc,
 };
-
-use super::node::NodeIdentity;
 
 /// The base trait of a database edge.
 ///
@@ -29,7 +28,7 @@ pub struct EdgeId<NodeId, ReferenceId> {
     predicate: ReferenceId,
 }
 
-// Trait required for all types implementing reference identities
+/// Trait required for all types implementing reference identities
 pub trait ReferenceIdentity<NodeId>: Clone + Display + Hash + Eq + PartialEq {
     fn object(&self) -> NodeId;
 }
