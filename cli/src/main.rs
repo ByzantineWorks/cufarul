@@ -59,7 +59,7 @@ fn main() -> Result<()> {
         println!("{id}: {out}");
     }
 
-    println!("{:#?}", repo.db());
+    // println!("{:#?}", repo.db());
     // let author = CollectionKey::Person("ffddf9b9-1552-40a0-aefa-ef660479d329".to_owned());
     // println!("Showing all nodes authored by {author}:");
 

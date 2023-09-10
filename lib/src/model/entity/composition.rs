@@ -4,8 +4,8 @@ use super::property::{Property, ReferenceProperty};
 use super::publication::Reference;
 use super::{Model, ReferenceKey};
 use crate::db::NodeLike;
-use crate::model::identity::{TaxonomyId, TextId};
-use crate::model::property::TranslatableProperty;
+use crate::model::identity::{PublicationId, TaxonomyId, TextId};
+use crate::model::property::{ContributionProperty, TranslatableProperty};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -18,6 +18,7 @@ pub struct Composition {
     publications: Vec<Reference>,
     category: ReferenceProperty,
     tags: Option<Vec<ReferenceProperty>>,
+    contribution: Option<ContributionProperty>,
 }
 
 impl Model for Composition {}
@@ -40,9 +41,10 @@ impl NodeLike for Composition {
             refs.extend(entry.references());
         }
 
-        for entry in &self.publications {
-            refs.extend(entry.into.references());
-        }
+        refs.extend(self.publications.iter().map(|e| {
+            let (_, publication_id) = e.into.value(None).unwrap();
+            ReferenceKey::PublishedInto(PublicationId::new(publication_id))
+        }));
 
         if let Some(tags) = &self.tags {
             refs.extend(tags.iter().map(|e| {

@@ -13,6 +13,7 @@ pub enum Error {
     MissingValue,
     InvalidReference(String),
     InvalidExternalLink(String, String),
+    InvalidContribution(String),
 }
 
 impl Display for Error {
@@ -35,6 +36,9 @@ impl Display for Error {
             }
             Self::InvalidExternalLink(url, err) => {
                 f.write_fmt(format_args!("invalid external link: {url}: {err}"))
+            }
+            Self::InvalidContribution(contrib) => {
+                f.write_fmt(format_args!("invalid contribution: {contrib}"))
             }
         }
     }

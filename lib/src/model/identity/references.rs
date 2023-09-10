@@ -12,6 +12,7 @@ pub enum ReferenceKey {
     UsedIn(super::CompositionId),
     Published(super::PublicationId),
     PublishedBy(super::PersonId),
+    PublishedInto(super::PublicationId),
     Performed(super::PerformanceId),
     PerformedBy(super::PersonId),
     OfKind(super::TaxonomyId),
@@ -29,6 +30,7 @@ impl Display for ReferenceKey {
             Self::UsedIn(_) => "used-in",
             Self::Published(_) => "published",
             Self::PublishedBy(_) => "published-by",
+            Self::PublishedInto(_) => "published-into",
             Self::Performed(_) => "performed",
             Self::PerformedBy(_) => "performed-by",
             Self::OfKind(_) => "of-kind",
@@ -47,7 +49,9 @@ impl ReferenceIdentity<CollectionKey> for ReferenceKey {
             | Self::WrittenBy(id)
             | Self::PublishedBy(id)
             | Self::PerformedBy(id) => CollectionKey::Person(id.to_owned()),
-            Self::Published(id) => CollectionKey::Publication(id.to_owned()),
+            Self::Published(id) | Self::PublishedInto(id) => {
+                CollectionKey::Publication(id.to_owned())
+            }
             Self::Performed(id) => CollectionKey::Performance(id.to_owned()),
             Self::UsesText(id) | Self::Wrote(id) => CollectionKey::Text(id.to_owned()),
             Self::OfKind(id) | Self::ParentOf(id) => CollectionKey::Taxonomy(id.to_owned()),

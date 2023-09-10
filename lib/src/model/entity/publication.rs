@@ -13,13 +13,13 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 pub struct Publication {
     name: TranslatableProperty,
-    author: ReferenceProperty,
+    author: Option<ReferenceProperty>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Reference {
-    pub into: Publication,
+    pub into: ReferenceProperty,
     pub page: u16,
 }
 
@@ -28,8 +28,12 @@ impl NodeLike for Publication {
     type ReferenceId = ReferenceKey;
 
     fn references(&self) -> Vec<Self::ReferenceId> {
-        let (_, author_id) = self.author.value(None).unwrap();
-        vec![ReferenceKey::PublishedBy(PersonId::new(author_id))]
+        if let Some(author) = &self.author {
+            let (_, author_id) = author.value(None).unwrap();
+            return vec![ReferenceKey::PublishedBy(PersonId::new(author_id))];
+        };
+
+        vec![]
     }
 
     fn as_any(&self) -> &dyn std::any::Any {
