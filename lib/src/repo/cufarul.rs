@@ -42,8 +42,17 @@ impl Repository for CufarulRepository {
                 .ok_or(Error::MissingCollection(collection.to_owned()))
                 .map(|dir| {
                     dir.filter_map(|elem| match elem {
-                        Ok(entry) => Some(LoadPath::from(entry.path())),
+                        Ok(entry) => Some(entry.path()),
                         Err(_) => None,
+                    })
+                    .filter_map(|entry| {
+                        match (
+                            entry.is_file(),
+                            entry.extension().unwrap_or_default().to_str(),
+                        ) {
+                            (true, Some("toml")) => Some(LoadPath::from(entry)),
+                            _ => None,
+                        }
                     })
                     .collect::<Index>()
                 })?;
@@ -69,6 +78,9 @@ impl Repository for CufarulRepository {
                 entry.collection().to_owned(),
                 entry.id().to_owned(),
             )?;
+
+            println!("Loading: {key}");
+
             let data: Rc<dyn NodeLike<ReferenceId = ReferenceKey>> = match &key {
                 CollectionKey::Person(_) => crate::model::from_file::<Person>(path)?,
                 CollectionKey::Composition(_) => crate::model::from_file::<Composition>(path)?,
