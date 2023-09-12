@@ -30,7 +30,7 @@ impl NodeLike for Publication {
     fn references(&self) -> Vec<Self::ReferenceId> {
         if let Some(author) = &self.author {
             let (_, author_id) = author.value(None).unwrap();
-            return vec![ReferenceKey::PublishedBy(PersonId::new(author_id))];
+            return vec![ReferenceKey::AuthoredBy(PersonId::new(author_id))];
         };
 
         vec![]

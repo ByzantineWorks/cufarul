@@ -43,7 +43,7 @@ impl NodeLike for Composition {
 
         refs.extend(self.publications.iter().map(|e| {
             let (_, publication_id) = e.into.value(None).unwrap();
-            ReferenceKey::PublishedInto(PublicationId::new(publication_id))
+            ReferenceKey::PublishedBy(PublicationId::new(publication_id))
         }));
 
         if let Some(tags) = &self.tags {

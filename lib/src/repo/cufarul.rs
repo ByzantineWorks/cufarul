@@ -104,7 +104,7 @@ impl Repository for CufarulRepository {
         for edge in references {
             // Check if object exists only, for the subject we are sure since
             // the edge came from it.
-            if !self.db.has_node(edge.predicate().object()) {
+            if !self.db.has_node(edge.forward_predicate().object()) {
                 return Err(Error::InvalidReference(edge.to_string()).into());
             }
 

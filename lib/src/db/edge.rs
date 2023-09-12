@@ -30,10 +30,16 @@ pub struct EdgeId<NodeId, ReferenceId> {
 
 /// Trait required for all types implementing reference identities
 pub trait ReferenceIdentity<NodeId>: Clone + Display + Hash + Eq + PartialEq {
+    type Error;
     fn object(&self) -> NodeId;
+    fn reverse(&self, object: NodeId) -> std::result::Result<Self, Self::Error>;
 }
 
-impl<NodeId, ReferenceId> EdgeId<NodeId, ReferenceId> {
+impl<NodeId, ReferenceId> EdgeId<NodeId, ReferenceId>
+where
+    NodeId: NodeIdentity,
+    ReferenceId: ReferenceIdentity<NodeId>,
+{
     pub fn new(subject: NodeId, predicate: ReferenceId) -> Self {
         EdgeId {
             subject: subject,
@@ -41,12 +47,20 @@ impl<NodeId, ReferenceId> EdgeId<NodeId, ReferenceId> {
         }
     }
 
-    pub fn subject(&self) -> &NodeId {
-        &self.subject
+    pub fn subject(&self) -> NodeId {
+        self.subject.to_owned()
     }
 
-    pub fn predicate(&self) -> &ReferenceId {
-        &self.predicate
+    pub fn forward_predicate(&self) -> ReferenceId {
+        self.predicate.to_owned()
+    }
+
+    pub fn backward_predicate(&self) -> std::result::Result<ReferenceId, ReferenceId::Error> {
+        self.predicate.reverse(self.subject.to_owned())
+    }
+
+    pub fn object(&self) -> NodeId {
+        self.predicate.object()
     }
 }
 
@@ -62,6 +76,10 @@ where
     ReferenceId: ReferenceIdentity<NodeId>,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{} -> {}", self.subject(), self.predicate()))
+        f.write_fmt(format_args!(
+            "{} -> {}",
+            self.subject(),
+            self.forward_predicate()
+        ))
     }
 }

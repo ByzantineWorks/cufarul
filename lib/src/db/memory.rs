@@ -6,14 +6,17 @@ use super::{
 };
 use std::collections::HashMap;
 
-type NodeMap<N, R> = HashMap<N, NodeRef<R>>;
+type NodeMap<N, R> = HashMap<N, Node<N, R>>;
 type EdgeMap<N, R> = HashMap<R, HashMap<N, EdgeRef>>;
 
 /// In-memory database implementation.
 ///
 /// TODO: remove Debug
 #[derive(Debug)]
-pub struct Datastore<N, R> {
+pub struct Datastore<N, R>
+where
+    R: ReferenceIdentity<N>,
+{
     nodes: NodeMap<N, R>,
     edges: EdgeMap<N, R>,
 }
@@ -25,43 +28,51 @@ where
 {
     type NodeId = N;
     type ReferenceId = R;
-    type NodeIter = std::collections::hash_map::IntoIter<Self::NodeId, NodeRef<Self::ReferenceId>>;
+    type NodeIter =
+        std::collections::hash_map::IntoIter<Self::NodeId, Node<Self::NodeId, Self::ReferenceId>>;
 
     fn insert_node(
         &mut self,
         id: Self::NodeId,
-        node: NodeRef<Self::ReferenceId>,
+        data: NodeRef<Self::ReferenceId>,
     ) -> Result<Node<Self::NodeId, Self::ReferenceId>> {
-        self.nodes.insert(id.to_owned(), node.clone()).map_or_else(
-            || Ok(Node::new(id.to_owned(), node)),
-            |_| Err(Error::Exists(id.to_string())),
-        )
+        let node = Node::new(id.to_owned(), data.clone());
+        self.nodes
+            .insert(id.to_owned(), node.to_owned())
+            .map_or(Ok(node), |_| Err(Error::Exists(id.to_string())))
     }
 
     fn insert_edge(
         &mut self,
         id: EdgeId<Self::NodeId, Self::ReferenceId>,
-        edge: EdgeRef,
+        data: EdgeRef,
     ) -> Result<Edge<Self::NodeId, Self::ReferenceId>> {
-        if !self.nodes.contains_key(id.subject()) {
+        if !self.nodes.contains_key(&id.subject()) {
             return Err(Error::InvalidEdge(id.to_string(), id.subject().to_string()));
         }
 
-        if !self.nodes.contains_key(&id.predicate().object()) {
+        if !self.nodes.contains_key(&id.forward_predicate().object()) {
             return Err(Error::InvalidEdge(
                 id.to_string(),
-                id.predicate().object().to_string(),
+                id.forward_predicate().object().to_string(),
             ));
         }
 
         self.edges
-            .entry(id.predicate().to_owned())
+            .entry(id.forward_predicate().to_owned())
             .or_default()
-            .insert(id.subject().to_owned(), edge.clone())
+            .insert(id.subject().to_owned(), data.clone())
             .map_or_else(
-                || Ok(Edge::new(id.to_owned(), edge.clone())),
+                || Ok(Edge::new(id.to_owned(), data.clone())),
                 |_| Err(Error::Exists(id.to_string())),
             )
+            .and_then(|edge| {
+                self.nodes.entry(id.subject().to_owned()).and_modify(|sub| {
+                    sub.push_reference(id.forward_predicate().to_owned());
+                });
+
+                Ok(edge)
+            })
     }
 
     fn nodes_iter(&self) -> Self::NodeIter {
@@ -77,7 +88,7 @@ where
     }
 
     fn node_by_id(&self, id: Self::NodeId) -> Option<Node<Self::NodeId, Self::ReferenceId>> {
-        self.nodes.get(&id).map(|elem| Node::new(id, elem.clone()))
+        self.nodes.get(&id).cloned()
     }
 
     fn edge_by_id(
@@ -85,7 +96,7 @@ where
         id: EdgeId<Self::NodeId, Self::ReferenceId>,
     ) -> Option<Edge<Self::NodeId, Self::ReferenceId>> {
         self.edges
-            .get(&id.predicate())
+            .get(&id.forward_predicate())
             .and_then(|refs| refs.get(&id.subject()))
             .map(|elem| Edge::new(id, elem.clone()))
     }
@@ -95,7 +106,10 @@ where
     }
 }
 
-impl<N, R> Default for Datastore<N, R> {
+impl<N, R> Default for Datastore<N, R>
+where
+    R: ReferenceIdentity<N>,
+{
     fn default() -> Self {
         Datastore {
             nodes: NodeMap::default(),

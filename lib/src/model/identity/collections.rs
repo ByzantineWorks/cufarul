@@ -9,7 +9,7 @@ macro_rules! count {
 }
 
 macro_rules! EntityId {
-    ($name:ident) => {
+    ($name:ident, $key:ident, $compat:ident) => {
         #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
         pub struct $name(String);
 
@@ -24,6 +24,19 @@ macro_rules! EntityId {
                 $name(id)
             }
         }
+
+        impl TryFrom<super::$key> for $name {
+            type Error = crate::model::Error;
+            fn try_from(value: super::$key) -> crate::model::Result<Self> {
+                match value {
+                    super::$key::$compat(id) => Ok(id),
+                    _ => Err(crate::model::Error::IncompatibleKeys(
+                        value,
+                        stringify!($compat).to_owned(),
+                    )),
+                }
+            }
+        }
     };
 }
 
@@ -32,7 +45,7 @@ macro_rules! EntitiyKey {
     ($name:ident, $(($entry:ident, $type:ident, $id:literal)), +) => {
         pub mod types {
             $(
-                EntityId!($type);
+                EntityId!($type, $name, $entry);
             )+
         }
 

@@ -26,7 +26,7 @@ where
     /// The iterator type used to iterate through nodes. It is requirede to
     /// implement the `Iterator` trait and to yield pairs of `NodeId` and
     /// and the data associated with the respective node.
-    type NodeIter: Iterator<Item = (Self::NodeId, NodeRef<Self::ReferenceId>)>;
+    type NodeIter: Iterator<Item = (Self::NodeId, Node<Self::NodeId, Self::ReferenceId>)>;
 
     /// Inserts a new node into the database with the given `id` and
     /// associated data `node`. Returns the same `NodeId` im case of success,
@@ -34,7 +34,7 @@ where
     fn insert_node(
         &mut self,
         id: Self::NodeId,
-        node: NodeRef<Self::ReferenceId>,
+        data: NodeRef<Self::ReferenceId>,
     ) -> Result<Node<Self::NodeId, Self::ReferenceId>>;
 
     /// Inserts a new edge into the database with the given fully specified
@@ -43,7 +43,7 @@ where
     fn insert_edge(
         &mut self,
         id: EdgeId<Self::NodeId, Self::ReferenceId>,
-        edge: EdgeRef,
+        data: EdgeRef,
     ) -> Result<Edge<Self::NodeId, Self::ReferenceId>>;
 
     /// Returns an iterator over all the nodes.

@@ -31,28 +31,29 @@ pub fn dump(args: Args) -> Result<()> {
     repo.sync()?;
 
     for (id, node) in repo.db().nodes_iter() {
+        let data = node.data();
         let object: &dyn Model = match id {
-            CollectionKey::Person(_) => node
+            CollectionKey::Person(_) => data
                 .as_any()
                 .downcast_ref::<Person>()
                 .expect("internal error"),
-            CollectionKey::Composition(_) => node
+            CollectionKey::Composition(_) => data
                 .as_any()
                 .downcast_ref::<Composition>()
                 .expect("internal error"),
-            CollectionKey::Publication(_) => node
+            CollectionKey::Publication(_) => data
                 .as_any()
                 .downcast_ref::<Publication>()
                 .expect("internal error"),
-            CollectionKey::Performance(_) => node
+            CollectionKey::Performance(_) => data
                 .as_any()
                 .downcast_ref::<Composition>()
                 .expect("internal error"),
-            CollectionKey::Text(_) => node
+            CollectionKey::Text(_) => data
                 .as_any()
                 .downcast_ref::<Text>()
                 .expect("internal error"),
-            CollectionKey::Taxonomy(_) => node
+            CollectionKey::Taxonomy(_) => data
                 .as_any()
                 .downcast_ref::<Taxonomy>()
                 .expect("internal error"),

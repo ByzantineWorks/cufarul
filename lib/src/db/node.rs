@@ -1,9 +1,12 @@
 use std::{
     any::Any,
+    collections::HashSet,
     fmt::{Debug, Display},
     hash::Hash,
     rc::Rc,
 };
+
+use super::ReferenceIdentity;
 
 /// The base trait of a database node.
 ///
@@ -24,16 +27,45 @@ where
 pub type NodeRef<R> = Rc<dyn NodeLike<ReferenceId = R>>;
 
 /// Wrapper over a node
-pub struct Node<NodeId, ReferenceId> {
+#[derive(Debug, Clone)]
+pub struct Node<NodeId, ReferenceId>
+where
+    ReferenceId: ReferenceIdentity<NodeId>,
+{
     id: NodeId,
     data: NodeRef<ReferenceId>,
+    references: HashSet<ReferenceId>,
 }
 
 // Trait required for all types implementing node identities
 pub trait NodeIdentity: Clone + Display + Hash + Eq + PartialEq {}
 
-impl<NodeId, ReferenceId> Node<NodeId, ReferenceId> {
+impl<NodeId, ReferenceId> Node<NodeId, ReferenceId>
+where
+    NodeId: NodeIdentity,
+    ReferenceId: ReferenceIdentity<NodeId>,
+{
     pub fn new(id: NodeId, data: NodeRef<ReferenceId>) -> Self {
-        Node { id: id, data: data }
+        Node {
+            id: id,
+            data: data,
+            references: HashSet::default(),
+        }
+    }
+
+    pub fn id(&self) -> NodeId {
+        self.id.to_owned()
+    }
+
+    pub fn data(&self) -> NodeRef<ReferenceId> {
+        self.data.clone()
+    }
+
+    pub fn references(&self) -> std::collections::hash_set::Iter<ReferenceId> {
+        self.references.iter()
+    }
+
+    pub(super) fn push_reference(&mut self, reference: ReferenceId) {
+        self.references.insert(reference);
     }
 }
