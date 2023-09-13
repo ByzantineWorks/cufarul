@@ -2,7 +2,7 @@ use super::node::NodeIdentity;
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
-    rc::Rc,
+    sync::Arc,
 };
 
 /// The base trait of a database edge.
@@ -10,10 +10,10 @@ use std::{
 /// The edges can carry arbitrary data, but since the database does not care
 /// about the data, it only requires edges to implement the `EdgeLike` trait.
 /// TODO: remove Debug
-pub trait EdgeLike: Debug {}
+pub trait EdgeLike: Debug + Send + Sync {}
 
 /// A reference-counted edge data instance.
-pub type EdgeRef = Rc<dyn EdgeLike>;
+pub type EdgeRef = Arc<dyn EdgeLike>;
 
 /// Wrapper over an edge
 pub struct Edge<NodeId, ReferenceId> {

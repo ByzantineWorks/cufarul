@@ -6,12 +6,12 @@ use super::{
     REPOSITORY_SUPPORTED_VERSION,
 };
 use crate::{
-    db::{Database, Datastore, EdgeId, NodeLike, ReferenceIdentity},
+    db::{Database, Datastore, EdgeId, NodeRef, ReferenceIdentity},
     model::{
         CollectionKey, Composition, Performance, Person, Publication, ReferenceKey, Taxonomy, Text,
     },
 };
-use std::rc::Rc;
+use std::sync::Arc;
 
 type ReferenceList = Vec<EdgeId<CollectionKey, ReferenceKey>>;
 
@@ -81,7 +81,7 @@ impl Repository for CufarulRepository {
 
             println!("Loading: {key}");
 
-            let data: Rc<dyn NodeLike<ReferenceId = ReferenceKey>> = match &key {
+            let data: NodeRef<ReferenceKey> = match &key {
                 CollectionKey::Person(_) => crate::model::from_file::<Person>(path)?,
                 CollectionKey::Composition(_) => crate::model::from_file::<Composition>(path)?,
                 CollectionKey::Performance(_) => crate::model::from_file::<Performance>(path)?,
@@ -108,7 +108,7 @@ impl Repository for CufarulRepository {
                 return Err(Error::InvalidReference(edge.to_string()).into());
             }
 
-            self.db.insert_edge(edge, Rc::new(()))?;
+            self.db.insert_edge(edge, Arc::new(()))?;
         }
 
         Ok(())

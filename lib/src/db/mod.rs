@@ -30,7 +30,7 @@ mod memory;
 mod node;
 
 pub use self::core::Database;
-pub use self::edge::{Edge, EdgeId, EdgeLike, ReferenceIdentity};
+pub use self::edge::{Edge, EdgeId, EdgeLike, EdgeRef, ReferenceIdentity};
 pub use self::error::{Error, Result};
 pub use self::memory::Datastore;
-pub use self::node::{Node, NodeIdentity, NodeLike};
+pub use self::node::{Node, NodeIdentity, NodeLike, NodeRef};

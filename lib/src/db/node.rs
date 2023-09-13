@@ -3,7 +3,7 @@ use std::{
     collections::HashSet,
     fmt::{Debug, Display},
     hash::Hash,
-    rc::Rc,
+    sync::Arc,
 };
 
 use super::ReferenceIdentity;
@@ -13,7 +13,7 @@ use super::ReferenceIdentity;
 /// The database implementation does not care for the content of the nodes but
 /// it requires the nodes to implement the `NodeLike` trait.
 /// TODO: remove Debug
-pub trait NodeLike: Debug
+pub trait NodeLike: Debug + Send + Sync
 where
     Self: Any,
 {
@@ -24,7 +24,7 @@ where
 }
 
 /// A reference-counted node.
-pub type NodeRef<R> = Rc<dyn NodeLike<ReferenceId = R>>;
+pub type NodeRef<R> = Arc<dyn NodeLike<ReferenceId = R>>;
 
 /// Wrapper over a node
 #[derive(Debug, Clone)]
