@@ -15,20 +15,18 @@ impl TryFrom<String> for ReferenceProperty {
     fn try_from(value: String) -> Result<Self> {
         // We unwrap with confidence since the regex is correct and below the
         // size limit.
-        let re = Regex::new(r"\A@(\w+)/([\w-]+)\z").unwrap();
-        let cap = re.captures(&value);
-
-        match cap {
-            Some(capture) => {
+        Regex::new(r"\A@(\w+)/([\w-]+)\z")
+            .unwrap()
+            .captures(&value)
+            .ok_or(Error::InvalidReference(value.to_owned()))
+            .and_then(|capture| {
                 let (_, [collection, id]) = capture.extract();
 
                 Ok(ReferenceProperty {
                     collection: collection.to_owned(),
                     id: id.to_owned(),
                 })
-            }
-            None => Err(Error::InvalidReference(value)),
-        }
+            })
     }
 }
 
