@@ -17,14 +17,11 @@ pub trait NodeLike: Debug + Send + Sync
 where
     Self: Any,
 {
-    type ReferenceId;
-
-    fn references(&self) -> Vec<Self::ReferenceId>;
     fn as_any(&self) -> &dyn Any;
 }
 
 /// A reference-counted node.
-pub type NodeRef<R> = Arc<dyn NodeLike<ReferenceId = R>>;
+pub type NodeRef = Arc<dyn NodeLike>;
 
 /// Wrapper over a node
 #[derive(Debug, Clone)]
@@ -33,7 +30,7 @@ where
     ReferenceId: ReferenceIdentity<NodeId>,
 {
     id: NodeId,
-    data: NodeRef<ReferenceId>,
+    data: NodeRef,
     references: HashSet<ReferenceId>,
 }
 
@@ -45,7 +42,7 @@ where
     NodeId: NodeIdentity,
     ReferenceId: ReferenceIdentity<NodeId>,
 {
-    pub fn new(id: NodeId, data: NodeRef<ReferenceId>) -> Self {
+    pub fn new(id: NodeId, data: NodeRef) -> Self {
         Node {
             id: id,
             data: data,
@@ -57,7 +54,7 @@ where
         self.id.to_owned()
     }
 
-    pub fn data(&self) -> NodeRef<ReferenceId> {
+    pub fn data(&self) -> NodeRef {
         self.data.clone()
     }
 

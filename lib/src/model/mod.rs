@@ -9,4 +9,4 @@ pub use self::error::{Error, Result};
 pub use self::identity::CollectionKey;
 pub use self::identity::ReferenceKey;
 
-pub use self::entity::from_file;
+pub use self::entity::{from_file, into_traits};

@@ -10,14 +10,13 @@ pub struct Person {
     about: Option<LinkProperty>,
 }
 
-impl Model for Person {}
-impl NodeLike for Person {
-    type ReferenceId = ReferenceKey;
-
-    fn references(&self) -> Vec<Self::ReferenceId> {
+impl Model for Person {
+    fn references(&self) -> Vec<ReferenceKey> {
         vec![]
     }
+}
 
+impl NodeLike for Person {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }

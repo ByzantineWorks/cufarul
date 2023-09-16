@@ -21,12 +21,9 @@ pub struct Composition {
     contribution: Option<ContributionProperty>,
 }
 
-impl Model for Composition {}
-impl NodeLike for Composition {
-    type ReferenceId = ReferenceKey;
-
-    fn references(&self) -> Vec<Self::ReferenceId> {
-        let mut refs = Vec::<Self::ReferenceId>::new();
+impl Model for Composition {
+    fn references(&self) -> Vec<ReferenceKey> {
+        let mut refs = Vec::<ReferenceKey>::new();
 
         let author_id = self.author.value();
         let text_id = self.text.value();
@@ -55,7 +52,8 @@ impl NodeLike for Composition {
 
         refs
     }
-
+}
+impl NodeLike for Composition {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }

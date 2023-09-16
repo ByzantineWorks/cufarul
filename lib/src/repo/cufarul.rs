@@ -6,7 +6,7 @@ use super::{
     REPOSITORY_SUPPORTED_VERSION,
 };
 use crate::{
-    db::{Database, Datastore, EdgeId, NodeRef, ReferenceIdentity},
+    db::{Database, Datastore, EdgeId, ReferenceIdentity},
     model::{
         CollectionKey, Composition, Performance, Person, Publication, ReferenceKey, Taxonomy, Text,
     },
@@ -81,17 +81,29 @@ impl Repository for CufarulRepository {
 
             println!("Loading: {key}");
 
-            let data: NodeRef<ReferenceKey> = match &key {
-                CollectionKey::Person(_) => crate::model::from_file::<Person>(path)?,
-                CollectionKey::Composition(_) => crate::model::from_file::<Composition>(path)?,
-                CollectionKey::Performance(_) => crate::model::from_file::<Performance>(path)?,
-                CollectionKey::Publication(_) => crate::model::from_file::<Publication>(path)?,
-                CollectionKey::Text(_) => crate::model::from_file::<Text>(path)?,
-                CollectionKey::Taxonomy(_) => crate::model::from_file::<Taxonomy>(path)?,
+            let (node, model) = match &key {
+                CollectionKey::Person(_) => {
+                    crate::model::into_traits(crate::model::from_file::<Person>(path)?)
+                }
+                CollectionKey::Composition(_) => {
+                    crate::model::into_traits(crate::model::from_file::<Composition>(path)?)
+                }
+                CollectionKey::Performance(_) => {
+                    crate::model::into_traits(crate::model::from_file::<Performance>(path)?)
+                }
+                CollectionKey::Publication(_) => {
+                    crate::model::into_traits(crate::model::from_file::<Publication>(path)?)
+                }
+                CollectionKey::Text(_) => {
+                    crate::model::into_traits(crate::model::from_file::<Text>(path)?)
+                }
+                CollectionKey::Taxonomy(_) => {
+                    crate::model::into_traits(crate::model::from_file::<Taxonomy>(path)?)
+                }
             };
 
-            self.db.insert_node(key.to_owned(), data.clone())?;
-            let mut fragment: ReferenceList = data
+            self.db.insert_node(key.to_owned(), node)?;
+            let mut fragment: ReferenceList = model
                 .references()
                 .iter()
                 .map(|reference| EdgeId::new(key.to_owned(), reference.to_owned()))

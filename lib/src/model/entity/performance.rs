@@ -16,15 +16,13 @@ pub struct Performance {
     link: LinkProperty,
 }
 
-impl Model for Performance {}
-impl NodeLike for Performance {
-    type ReferenceId = ReferenceKey;
-
-    fn references(&self) -> Vec<Self::ReferenceId> {
+impl Model for Performance {
+    fn references(&self) -> Vec<ReferenceKey> {
         let author_id = self.performer.value();
         vec![ReferenceKey::PerformedBy(PersonId::new(author_id.id()))]
     }
-
+}
+impl NodeLike for Performance {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }

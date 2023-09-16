@@ -34,7 +34,7 @@ where
     fn insert_node(
         &mut self,
         id: Self::NodeId,
-        data: NodeRef<Self::ReferenceId>,
+        data: NodeRef,
     ) -> Result<Node<Self::NodeId, Self::ReferenceId>> {
         let node = Node::new(id.to_owned(), data.clone());
         self.nodes

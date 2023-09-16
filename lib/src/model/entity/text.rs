@@ -16,11 +16,8 @@ pub struct Text {
     author: Option<ReferenceProperty>,
 }
 
-impl Model for Text {}
-impl NodeLike for Text {
-    type ReferenceId = ReferenceKey;
-
-    fn references(&self) -> Vec<Self::ReferenceId> {
+impl Model for Text {
+    fn references(&self) -> Vec<ReferenceKey> {
         if let Some(author) = &self.author {
             let author_id = author.value();
             return vec![ReferenceKey::WrittenBy(PersonId::new(author_id.id()))];
@@ -28,7 +25,9 @@ impl NodeLike for Text {
 
         vec![]
     }
+}
 
+impl NodeLike for Text {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }

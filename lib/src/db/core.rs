@@ -34,7 +34,7 @@ where
     fn insert_node(
         &mut self,
         id: Self::NodeId,
-        data: NodeRef<Self::ReferenceId>,
+        data: NodeRef,
     ) -> Result<Node<Self::NodeId, Self::ReferenceId>>;
 
     /// Inserts a new edge into the database with the given fully specified

@@ -23,11 +23,8 @@ pub struct Reference {
     pub page: u16,
 }
 
-impl Model for Publication {}
-impl NodeLike for Publication {
-    type ReferenceId = ReferenceKey;
-
-    fn references(&self) -> Vec<Self::ReferenceId> {
+impl Model for Publication {
+    fn references(&self) -> Vec<ReferenceKey> {
         if let Some(author) = &self.author {
             let author_id = author.value();
             return vec![ReferenceKey::AuthoredBy(PersonId::new(author_id.id()))];
@@ -35,7 +32,9 @@ impl NodeLike for Publication {
 
         vec![]
     }
+}
 
+impl NodeLike for Publication {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
