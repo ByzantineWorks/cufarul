@@ -28,3 +28,5 @@ mod references;
 pub use self::collections::types::*;
 pub use self::collections::CollectionKey;
 pub use self::references::ReferenceKey;
+
+use super::{Error, Result};

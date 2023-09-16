@@ -12,10 +12,3 @@ pub use self::translation::TranslatableProperty;
 
 use super::error::{Error, Result};
 use super::serde::{Lang, NonEmptyString};
-
-pub trait Property<T>
-where
-    T: Clone,
-{
-    fn value(&self, lang: Option<Lang>) -> Option<T>;
-}

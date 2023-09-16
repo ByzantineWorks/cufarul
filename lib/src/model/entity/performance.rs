@@ -3,7 +3,7 @@ use crate::{
     db::NodeLike,
     model::{
         identity::PersonId,
-        property::{LinkProperty, Property, ReferenceProperty},
+        property::{LinkProperty, ReferenceProperty},
         ReferenceKey,
     },
 };
@@ -21,8 +21,8 @@ impl NodeLike for Performance {
     type ReferenceId = ReferenceKey;
 
     fn references(&self) -> Vec<Self::ReferenceId> {
-        let (_, author_id) = self.performer.value(None).unwrap();
-        vec![ReferenceKey::PerformedBy(PersonId::new(author_id))]
+        let author_id = self.performer.value();
+        vec![ReferenceKey::PerformedBy(PersonId::new(author_id.id()))]
     }
 
     fn as_any(&self) -> &dyn std::any::Any {

@@ -7,7 +7,6 @@ pub enum Error {
     NoRepositoryFound,
     UnsupportedVersion(u8),
     MissingCollection(String),
-    InvalidCollectionKey(String),
     InvalidReference(String),
     IoError(std::io::Error),
     DeError(toml::de::Error),
@@ -19,9 +18,6 @@ impl Display for Error {
             Self::NoRepositoryFound => f.write_str("no repository found"),
             Self::UnsupportedVersion(version) => {
                 f.write_fmt(format_args!("unsupported repository version: {version}"))
-            }
-            Self::InvalidCollectionKey(key) => {
-                f.write_fmt(format_args!("{key}: unsupported collection key"))
             }
             Self::InvalidReference(spec) => {
                 f.write_fmt(format_args!("could not find reference: {spec}"))

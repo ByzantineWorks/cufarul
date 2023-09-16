@@ -1,4 +1,4 @@
-use super::{Error, NonEmptyString, Property, Result};
+use super::{Error, NonEmptyString, Result};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -32,8 +32,8 @@ impl TryFrom<LinkProperty> for ExternalLink {
     }
 }
 
-impl Property<ExternalLink> for LinkProperty {
-    fn value(&self, _: Option<super::Lang>) -> Option<ExternalLink> {
+impl LinkProperty {
+    pub fn value(&self) -> Option<ExternalLink> {
         ExternalLink::try_from(self.to_owned()).ok()
     }
 }

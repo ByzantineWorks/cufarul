@@ -1,6 +1,6 @@
 use super::identity::PersonId;
 use super::performance::Performance;
-use super::property::{Property, ReferenceProperty};
+use super::property::ReferenceProperty;
 use super::publication::Reference;
 use super::{Model, ReferenceKey};
 use crate::db::NodeLike;
@@ -28,13 +28,13 @@ impl NodeLike for Composition {
     fn references(&self) -> Vec<Self::ReferenceId> {
         let mut refs = Vec::<Self::ReferenceId>::new();
 
-        let (_, author_id) = self.author.value(None).unwrap();
-        let (_, text_id) = self.text.value(None).unwrap();
-        let (_, category_id) = self.category.value(None).unwrap();
+        let author_id = self.author.value();
+        let text_id = self.text.value();
+        let category_id = self.category.value();
         refs.extend_from_slice(&[
-            ReferenceKey::AuthoredBy(PersonId::new(author_id)),
-            ReferenceKey::UsesText(TextId::new(text_id)),
-            ReferenceKey::OfKind(TaxonomyId::new(category_id)),
+            ReferenceKey::AuthoredBy(PersonId::new(author_id.id())),
+            ReferenceKey::UsesText(TextId::new(text_id.id())),
+            ReferenceKey::OfKind(TaxonomyId::new(category_id.id())),
         ]);
 
         for entry in &self.performances {
@@ -42,14 +42,14 @@ impl NodeLike for Composition {
         }
 
         refs.extend(self.publications.iter().map(|e| {
-            let (_, publication_id) = e.into.value(None).unwrap();
-            ReferenceKey::PublishedBy(PublicationId::new(publication_id))
+            let publication_id = e.into.value();
+            ReferenceKey::PublishedBy(PublicationId::new(publication_id.id()))
         }));
 
         if let Some(tags) = &self.tags {
             refs.extend(tags.iter().map(|e| {
-                let (_, id) = e.value(None).unwrap();
-                ReferenceKey::OfKind(TaxonomyId::new(id))
+                let id = e.value();
+                ReferenceKey::OfKind(TaxonomyId::new(id.id()))
             }));
         }
 

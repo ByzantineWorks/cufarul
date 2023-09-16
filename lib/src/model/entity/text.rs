@@ -3,7 +3,7 @@ use crate::{
     db::NodeLike,
     model::{
         identity::PersonId,
-        property::{Property, ReferenceProperty, TranslatableProperty},
+        property::{ReferenceProperty, TranslatableProperty},
         ReferenceKey,
     },
 };
@@ -22,8 +22,8 @@ impl NodeLike for Text {
 
     fn references(&self) -> Vec<Self::ReferenceId> {
         if let Some(author) = &self.author {
-            let (_, author_id) = author.value(None).unwrap();
-            return vec![ReferenceKey::WrittenBy(PersonId::new(author_id))];
+            let author_id = author.value();
+            return vec![ReferenceKey::WrittenBy(PersonId::new(author_id.id()))];
         }
 
         vec![]

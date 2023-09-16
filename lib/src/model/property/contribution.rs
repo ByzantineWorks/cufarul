@@ -1,4 +1,3 @@
-use super::Property;
 use super::{Error, Result};
 use crate::model::identity::CompositionId;
 use serde::{Deserialize, Serialize};
@@ -46,8 +45,8 @@ impl From<ContributionProperty> for String {
     }
 }
 
-impl Property<Contribution> for ContributionProperty {
-    fn value(&self, _: Option<crate::model::serde::Lang>) -> Option<Contribution> {
-        Some(self.0.to_owned())
+impl ContributionProperty {
+    pub fn value(&self) -> Contribution {
+        self.0.to_owned()
     }
 }

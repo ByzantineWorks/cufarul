@@ -3,7 +3,7 @@ use crate::{
     db::NodeLike,
     model::{
         identity::TaxonomyId,
-        property::{Property, ReferenceProperty, TranslatableProperty},
+        property::{ReferenceProperty, TranslatableProperty},
         ReferenceKey,
     },
 };
@@ -21,8 +21,8 @@ impl NodeLike for Taxonomy {
 
     fn references(&self) -> Vec<Self::ReferenceId> {
         if let Some(other) = &self.parent {
-            let (_, parent_id) = other.value(None).unwrap();
-            return vec![ReferenceKey::OfKind(TaxonomyId::new(parent_id))];
+            let parent_id = other.value();
+            return vec![ReferenceKey::OfKind(TaxonomyId::new(parent_id.id()))];
         }
 
         vec![]

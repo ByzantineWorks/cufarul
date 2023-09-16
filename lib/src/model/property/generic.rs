@@ -1,4 +1,3 @@
-use super::Property;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -8,11 +7,11 @@ pub struct GenericProperty<T> {
     data: T,
 }
 
-impl<T> Property<T> for GenericProperty<T>
+impl<T> GenericProperty<T>
 where
     T: Clone,
 {
-    fn value(&self, _: Option<super::Lang>) -> Option<T> {
-        Some(self.data.clone())
+    pub fn value(&self) -> T {
+        self.data.to_owned()
     }
 }

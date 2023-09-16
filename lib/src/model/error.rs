@@ -14,6 +14,7 @@ pub enum Error {
     InvalidReference(String),
     InvalidExternalLink(String, String),
     InvalidContribution(String),
+    InvalidCollectionKey(String),
 }
 
 impl Display for Error {
@@ -39,6 +40,9 @@ impl Display for Error {
             }
             Self::InvalidContribution(contrib) => {
                 f.write_fmt(format_args!("invalid contribution: {contrib}"))
+            }
+            Self::InvalidCollectionKey(key) => {
+                f.write_fmt(format_args!("{key}: unsupported collection key"))
             }
         }
     }

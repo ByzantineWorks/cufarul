@@ -1,7 +1,5 @@
-use crate::{
-    db::NodeIdentity,
-    repo::{Error, Result},
-};
+use super::{Error, Result};
+use crate::db::NodeIdentity;
 
 macro_rules! count {
     () => (0usize);
@@ -35,6 +33,18 @@ macro_rules! EntityId {
                         stringify!($compat).to_owned(),
                     )),
                 }
+            }
+        }
+
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                Self(value)
+            }
+        }
+
+        impl From<&'static str> for $name {
+            fn from(value: &'static str) -> Self {
+                Self(value.to_owned())
             }
         }
     };
@@ -80,6 +90,14 @@ macro_rules! EntitiyKey {
                         $id => Ok(Self::$entry(self::types::$type::new(id))),
                     )+
                     _ => Err(Error::InvalidCollectionKey(collection)),
+                }
+            }
+
+            pub fn id(&self) -> String {
+                match self {
+                    $(
+                        Self::$entry(id) => id.to_string(),
+                    )+
                 }
             }
         }

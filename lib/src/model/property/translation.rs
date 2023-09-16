@@ -1,4 +1,4 @@
-use super::{Error, Lang, NonEmptyString, Property, Result};
+use super::{Error, Lang, NonEmptyString, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -29,6 +29,10 @@ impl TranslationMap {
     pub fn translation(&self, lang: Lang) -> Option<&NonEmptyString> {
         self.0.get(&lang)
     }
+
+    pub fn any_translation(&self) -> Option<&NonEmptyString> {
+        self.0.iter().next().and_then(|(_, res)| Some(res))
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -40,12 +44,12 @@ pub struct TranslatableProperty {
     default_lang: Option<Lang>,
 }
 
-impl Property<NonEmptyString> for TranslatableProperty {
-    fn value(&self, lang: Option<Lang>) -> Option<NonEmptyString> {
-        let language = lang.or(self.default_lang.to_owned()).unwrap_or_default();
-
-        self.data
-            .translation(language)
-            .and_then(|res| Some(res.to_owned()))
+impl TranslatableProperty {
+    pub fn value(&self, lang: Option<Lang>) -> Option<NonEmptyString> {
+        match lang.or(self.default_lang.to_owned()) {
+            Some(lang) => self.data.translation(lang),
+            None => self.data.any_translation(),
+        }
+        .and_then(|res| Some(res.to_owned()))
     }
 }

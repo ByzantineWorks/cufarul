@@ -1,14 +1,12 @@
-use super::{Error, Property, Result};
+use super::{Error, Result};
+use crate::model::CollectionKey;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(try_from = "String")]
 #[serde(into = "String")]
-pub struct ReferenceProperty {
-    collection: String,
-    id: String,
-}
+pub struct ReferenceProperty(CollectionKey);
 
 impl TryFrom<String> for ReferenceProperty {
     type Error = Error;
@@ -21,23 +19,22 @@ impl TryFrom<String> for ReferenceProperty {
             .ok_or(Error::InvalidReference(value.to_owned()))
             .and_then(|capture| {
                 let (_, [collection, id]) = capture.extract();
-
-                Ok(ReferenceProperty {
-                    collection: collection.to_owned(),
-                    id: id.to_owned(),
-                })
+                Ok(ReferenceProperty(CollectionKey::from_collection_and_id(
+                    collection.to_owned(),
+                    id.to_owned(),
+                )?))
             })
     }
 }
 
 impl From<ReferenceProperty> for String {
     fn from(value: ReferenceProperty) -> Self {
-        format!("@{}/{}", value.collection, value.id)
+        value.0.to_string()
     }
 }
 
-impl Property<(String, String)> for ReferenceProperty {
-    fn value(&self, _: Option<super::Lang>) -> Option<(String, String)> {
-        Some((self.collection.to_owned(), self.id.to_owned()))
+impl ReferenceProperty {
+    pub fn value(&self) -> CollectionKey {
+        self.0.to_owned()
     }
 }
