@@ -13,11 +13,21 @@ use super::ReferenceIdentity;
 /// The database implementation does not care for the content of the nodes but
 /// it requires the nodes to implement the `NodeLike` trait.
 /// TODO: remove Debug
-pub trait NodeLike: Debug + Send + Sync
+pub trait NodeLike: Debug + Send + Sync + AsAnyArc
 where
     Self: Any,
 {
     fn as_any(&self) -> &dyn Any;
+}
+
+pub trait AsAnyArc {
+    fn as_any_arc(self: Arc<Self>) -> Arc<dyn Any + Send + Sync>;
+}
+
+impl<T: 'static + Send + Sync> AsAnyArc for T {
+    fn as_any_arc(self: Arc<Self>) -> Arc<dyn Any + Send + Sync> {
+        self
+    }
 }
 
 /// A reference-counted node.
