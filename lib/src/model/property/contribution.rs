@@ -18,7 +18,7 @@ impl TryFrom<String> for ContributionProperty {
     type Error = Error;
     fn try_from(value: String) -> Result<Self> {
         let (contrib, reference) = match value.split_once("@") {
-            Some((c, r)) => (c, Some(format!("@{r}"))),
+            Some((c, r)) => (c, Some(format!("{r}"))),
             None => (value.as_str(), None),
         };
 

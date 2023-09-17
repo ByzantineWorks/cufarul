@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Composition {
-    pub name: Option<TranslatableProperty>,
+    pub name: TranslatableProperty,
     pub text: ReferenceProperty,
     pub author: ReferenceProperty,
     pub performances: Vec<Performance>,
