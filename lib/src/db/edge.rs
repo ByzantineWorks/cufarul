@@ -1,7 +1,9 @@
 use super::node::NodeIdentity;
 use std::{
+    error::Error,
     fmt::{Debug, Display},
     hash::Hash,
+    result::Result,
     sync::Arc,
 };
 
@@ -30,9 +32,9 @@ pub struct EdgeId<NodeId, ReferenceId> {
 
 /// Trait required for all types implementing reference identities
 pub trait ReferenceIdentity<NodeId>: Clone + Display + Hash + Eq + PartialEq {
-    type Error;
+    type Error: Error;
     fn object(&self) -> NodeId;
-    fn reverse(&self, object: NodeId) -> std::result::Result<Self, Self::Error>;
+    fn reverse(&self, object: NodeId) -> Result<Self, Self::Error>;
 }
 
 impl<NodeId, ReferenceId> EdgeId<NodeId, ReferenceId>
@@ -55,12 +57,19 @@ where
         self.predicate.to_owned()
     }
 
-    pub fn backward_predicate(&self) -> std::result::Result<ReferenceId, ReferenceId::Error> {
+    pub fn backward_predicate(&self) -> Result<ReferenceId, ReferenceId::Error> {
         self.predicate.reverse(self.subject.to_owned())
     }
 
     pub fn object(&self) -> NodeId {
         self.predicate.object()
+    }
+
+    pub fn reverse(&self) -> Result<Self, ReferenceId::Error> {
+        Ok(EdgeId {
+            subject: self.object(),
+            predicate: self.backward_predicate()?,
+        })
     }
 }
 

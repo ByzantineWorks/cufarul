@@ -28,6 +28,10 @@ where
     /// and the data associated with the respective node.
     type NodeIter: Iterator<Item = (Self::NodeId, Node<Self::NodeId, Self::ReferenceId>)>;
 
+    /// The iterator type used to iterate through node keys. It is required to
+    /// implement the `Iterator` trait and to yield `NodeId` values.
+    type NodeIdIter: Iterator<Item = Self::NodeId>;
+
     /// Inserts a new node into the database with the given `id` and
     /// associated data `node`. Returns the same `NodeId` im case of success,
     /// and an error value otherwise.
@@ -61,6 +65,9 @@ where
     /// found. The returned type is a wrapper over `NodeId` and the associated
     /// data.
     fn node_by_id(&self, id: Self::NodeId) -> Option<Node<Self::NodeId, Self::ReferenceId>>;
+
+    /// Returns an interator over the node keys.
+    fn node_ids(&self) -> Self::NodeIdIter;
 
     /// Returns the edge with the given `id`, or `None` if no such edge is
     /// found. The returned type is a wrapper over `EdgeId` and the associated

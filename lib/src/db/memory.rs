@@ -23,13 +23,15 @@ where
 
 impl<N, R> Database for Datastore<N, R>
 where
-    N: NodeIdentity + 'static,
+    N: NodeIdentity,
     R: ReferenceIdentity<N>,
 {
     type NodeId = N;
     type ReferenceId = R;
     type NodeIter =
         std::collections::hash_map::IntoIter<Self::NodeId, Node<Self::NodeId, Self::ReferenceId>>;
+    type NodeIdIter =
+        std::collections::hash_map::IntoKeys<Self::NodeId, Node<Self::NodeId, Self::ReferenceId>>;
 
     fn insert_node(
         &mut self,
@@ -71,6 +73,10 @@ where
                     sub.push_reference(id.forward_predicate().to_owned());
                 });
 
+                self.nodes.entry(id.object()).and_modify(|obj| {
+                    obj.push_reference(id.backward_predicate().unwrap());
+                });
+
                 Ok(edge)
             })
     }
@@ -89,6 +95,10 @@ where
 
     fn node_by_id(&self, id: Self::NodeId) -> Option<Node<Self::NodeId, Self::ReferenceId>> {
         self.nodes.get(&id).cloned()
+    }
+
+    fn node_ids(&self) -> Self::NodeIdIter {
+        self.nodes.clone().into_keys()
     }
 
     fn edge_by_id(
