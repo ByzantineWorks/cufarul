@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Taxonomy {
-    name: TranslatableProperty,
-    parent: Option<ReferenceProperty>,
+    pub name: TranslatableProperty,
+    pub parent: Option<ReferenceProperty>,
 }
 
 impl Model for Taxonomy {

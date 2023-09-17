@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Performance {
-    performer: ReferenceProperty,
-    link: LinkProperty,
+    pub performer: ReferenceProperty,
+    pub link: LinkProperty,
 }
 
 impl Model for Performance {

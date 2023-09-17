@@ -5,6 +5,8 @@ mod publication;
 mod taxonomy;
 mod text;
 
+pub mod ser;
+
 use std::sync::Arc;
 
 pub use composition::Composition;

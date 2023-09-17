@@ -1,39 +1,28 @@
-use super::{Error, NonEmptyString, Result};
+use super::NonEmptyString;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LinkProperty {
-    content: NonEmptyString,
-    url: NonEmptyString,
+    pub content: NonEmptyString,
+    pub url: Url,
 }
 
 #[derive(Clone, Debug)]
 pub enum ExternalLink {
-    VideoUrl(Url),
-    AudioUrl(Url),
-    WikiUrl(Url),
-    MiscUrl(Url, String),
+    Video(Url),
+    Audio(Url),
+    Wiki(Url),
+    Misc(Url, String),
 }
 
-impl TryFrom<LinkProperty> for ExternalLink {
-    type Error = Error;
-    fn try_from(value: LinkProperty) -> Result<Self> {
-        let url = Url::parse(value.url.value()).map_err(|err| {
-            Error::InvalidExternalLink(value.url.value().to_owned(), err.to_string())
-        })?;
-
-        Ok(match value.content.value().trim() {
-            "video" => Self::VideoUrl(url),
-            "audio" => Self::AudioUrl(url),
-            "wiki" => Self::WikiUrl(url),
-            other => Self::MiscUrl(url, other.to_owned()),
-        })
-    }
-}
-
-impl LinkProperty {
-    pub fn value(&self) -> Option<ExternalLink> {
-        ExternalLink::try_from(self.to_owned()).ok()
+impl From<LinkProperty> for ExternalLink {
+    fn from(value: LinkProperty) -> Self {
+        match value.content.value().trim() {
+            "video" => Self::Video(value.url),
+            "audio" => Self::Audio(value.url),
+            "wiki" => Self::Wiki(value.url),
+            other => Self::Misc(value.url, other.to_owned()),
+        }
     }
 }

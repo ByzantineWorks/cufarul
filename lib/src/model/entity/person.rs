@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Person {
-    name: TranslatableProperty,
-    about: Option<LinkProperty>,
+    pub name: TranslatableProperty,
+    pub about: Option<LinkProperty>,
 }
 
 impl Model for Person {

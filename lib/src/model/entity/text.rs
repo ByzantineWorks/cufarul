@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Text {
-    name: TranslatableProperty,
-    author: Option<ReferenceProperty>,
+    pub name: TranslatableProperty,
+    pub author: Option<ReferenceProperty>,
 }
 
 impl Model for Text {

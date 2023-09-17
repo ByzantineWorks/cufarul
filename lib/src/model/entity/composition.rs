@@ -11,14 +11,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Composition {
-    name: Option<TranslatableProperty>,
-    text: ReferenceProperty,
-    author: ReferenceProperty,
-    performances: Vec<Performance>,
-    publications: Vec<Reference>,
-    category: ReferenceProperty,
-    tags: Option<Vec<ReferenceProperty>>,
-    contribution: Option<ContributionProperty>,
+    pub name: Option<TranslatableProperty>,
+    pub text: ReferenceProperty,
+    pub author: ReferenceProperty,
+    pub performances: Vec<Performance>,
+    pub publications: Vec<Reference>,
+    pub category: ReferenceProperty,
+    pub tags: Option<Vec<ReferenceProperty>>,
+    pub contribution: Option<ContributionProperty>,
 }
 
 impl Model for Composition {

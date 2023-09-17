@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Publication {
-    name: TranslatableProperty,
-    author: Option<ReferenceProperty>,
+    pub name: TranslatableProperty,
+    pub author: Option<ReferenceProperty>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

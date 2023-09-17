@@ -15,5 +15,5 @@ path = "src/lib.rs"
 serde = { version = "1.0.185", features = ["derive"] }
 toml = "0.7.6"
 erased-serde = "0.3.31"
-url = "2.4.1"
+url = { version = "2.4.1", features = ["serde"] }
 regex = "1.9.5"
