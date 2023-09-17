@@ -1,5 +1,5 @@
 use super::{
-    core::Repository,
+    core::{Cufarul, Repository},
     error::{Error, Result},
     index::{LoadPath, RepoIndex},
     spec::RepositorySpec,
@@ -8,7 +8,10 @@ use super::{
 use crate::{
     db::{Database, Datastore, EdgeId, ReferenceIdentity},
     model::{
-        CollectionKey, Composition, Performance, Person, Publication, ReferenceKey, Taxonomy, Text,
+        AsBoxModelRepr, CollectionKey, Composition, CompositionRepr, Contribution,
+        ContributionRepr, Lang, LinkRepr, ModelRepr, ModelReprRef, Performance, PerformanceRepr,
+        Person, PersonRepr, Publication, PublicationRepr, ReferenceInPublucationRepr, ReferenceKey,
+        ReferenceRepr, Taxonomy, TaxonomyRepr, Text, TextRepr,
     },
 };
 use std::sync::Arc;
@@ -140,5 +143,328 @@ impl CufarulRepository {
 
     pub fn spec(&self) -> &RepositorySpec {
         &self.spec
+    }
+
+    fn resolve_person(
+        &self,
+        id: CollectionKey,
+        lang: &Option<Lang>,
+        expand: bool,
+    ) -> Result<PersonRepr> {
+        println!("Resolving {id}...");
+        let node = self
+            .db
+            .node_by_id(id.to_owned())
+            .ok_or(Error::NoData(id.to_string()))?;
+
+        let data = node
+            .data()
+            .as_any_arc()
+            .downcast::<Person>()
+            .map_err(|_| Error::InternalError("incompatible"))?;
+
+        let mut compositions = Vec::<CompositionRepr>::new();
+        // let mut performances = Vec::<PerformanceRepr>::new();
+
+        if expand {
+            for reference in node.references() {
+                println!("\tResolving reference {}", reference.to_string());
+                match reference {
+                    ReferenceKey::Authored(id) => {
+                        compositions.push(self.resolve_composition(
+                            CollectionKey::Composition(id.to_owned()),
+                            lang,
+                            false,
+                        )?);
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        Ok(PersonRepr {
+            id: id,
+            name: data.name.value(lang.to_owned()),
+            compositions: compositions,
+            performances: vec![],
+        })
+    }
+
+    fn resolve_text(
+        &self,
+        id: CollectionKey,
+        lang: &Option<Lang>,
+        expand: bool,
+    ) -> Result<TextRepr> {
+        let node = self
+            .db
+            .node_by_id(id.to_owned())
+            .ok_or(Error::NoData(id.to_string()))?;
+        let data = node
+            .data()
+            .as_any_arc()
+            .downcast::<Text>()
+            .map_err(|_| Error::InternalError("incompatible"))?;
+
+        let author = match (expand, data.author.clone()) {
+            (true, Some(reference)) => Some(ReferenceRepr::Model(self.resolve_person(
+                reference.value(),
+                &lang,
+                false,
+            )?)),
+            (false, Some(reference)) => Some(ReferenceRepr::Key(reference.value())),
+            (_, None) => None,
+        };
+
+        let compositions: Vec<ReferenceRepr<CompositionRepr>> = node
+            .references()
+            .filter_map(|reference| match reference {
+                ReferenceKey::UsedIn(id) => match expand {
+                    true => self
+                        .resolve_composition(CollectionKey::Composition(id.to_owned()), lang, false)
+                        .map(|repr| ReferenceRepr::Model(repr))
+                        .ok(),
+                    false => Some(ReferenceRepr::Key(CollectionKey::Composition(
+                        id.to_owned(),
+                    ))),
+                },
+                _ => None,
+            })
+            .collect();
+
+        Ok(TextRepr {
+            id: id,
+            name: data.name.value(lang.to_owned()),
+            author: author,
+            compositions: compositions,
+        })
+    }
+
+    fn resolve_publication(
+        &self,
+        id: CollectionKey,
+        lang: &Option<Lang>,
+        expand: bool,
+    ) -> Result<PublicationRepr> {
+        println!("Resolving {id}...");
+        let node = self
+            .db
+            .node_by_id(id.to_owned())
+            .ok_or(Error::NoData(id.to_string()))?;
+        let data = node
+            .data()
+            .as_any_arc()
+            .downcast::<Publication>()
+            .map_err(|_| Error::InternalError("incompatible"))?;
+
+        let author = match (&data.author, expand) {
+            (Some(key), true) => {
+                ReferenceRepr::Model(self.resolve_person(key.value(), lang, false)?)
+            }
+            (Some(key), false) => ReferenceRepr::Key(key.value()),
+            (None, _) => ReferenceRepr::Unavailable,
+        };
+
+        let compositions: Vec<ReferenceRepr<CompositionRepr>> = node
+            .references()
+            .filter_map(|reference| match reference {
+                ReferenceKey::Published(id) => match expand {
+                    true => self
+                        .resolve_composition(CollectionKey::Composition(id.to_owned()), lang, false)
+                        .map(|repr| ReferenceRepr::Model(repr))
+                        .ok(),
+                    false => Some(ReferenceRepr::Key(CollectionKey::Composition(
+                        id.to_owned(),
+                    ))),
+                },
+                _ => None,
+            })
+            .collect();
+
+        Ok(PublicationRepr {
+            id: id,
+            name: data.name.value(lang.to_owned()),
+            author: author,
+            compositions: compositions,
+        })
+    }
+
+    fn resolve_taxonomy(&self, id: CollectionKey, lang: &Option<Lang>) -> Result<TaxonomyRepr> {
+        println!("Resolving {id}...");
+        let data = self
+            .db
+            .node_by_id(id.to_owned())
+            .ok_or(Error::NoData(id.to_string()))?
+            .data()
+            .as_any_arc()
+            .downcast::<Taxonomy>()
+            .map_err(|_| Error::InternalError("incompatible"))?;
+
+        let mut parents: Vec<(String, CollectionKey)> = Vec::new();
+        let mut current = data.clone();
+        while let Some(parent_id) = current.parent.to_owned() {
+            let parent = self
+                .db
+                .node_by_id(parent_id.value())
+                .ok_or(Error::NoData(id.to_string()))?
+                .data()
+                .as_any_arc()
+                .downcast::<Taxonomy>()
+                .map_err(|_| Error::InternalError("incompatible"))?;
+            current = parent.clone();
+
+            parents.push((current.name.value(lang.to_owned()), parent_id.value()));
+        }
+
+        Ok(TaxonomyRepr {
+            id: id,
+            name: data.name.value(lang.to_owned()),
+            parents: parents,
+        })
+    }
+
+    fn resolve_composition(
+        &self,
+        id: CollectionKey,
+        lang: &Option<Lang>,
+        expand: bool,
+    ) -> Result<CompositionRepr> {
+        println!("Resolving {id}...");
+        let data = self
+            .db
+            .node_by_id(id.to_owned())
+            .ok_or(Error::NoData(id.to_string()))?
+            .data()
+            .as_any_arc()
+            .downcast::<Composition>()
+            .map_err(|_| Error::InternalError("incompatible"))?;
+
+        let author = self.resolve_person(data.author.value(), lang, false)?;
+        let text = self.resolve_text(data.text.value(), lang, false)?;
+        let performances = data
+            .performances
+            .iter()
+            .filter_map(|p| match expand {
+                true => self
+                    .resolve_person(p.performer.value(), lang, false)
+                    .and_then(|repr| {
+                        Ok(PerformanceRepr {
+                            performer: ReferenceRepr::Model(repr),
+                            link: p.link.clone().into(),
+                        })
+                    })
+                    .ok(),
+                false => Some(PerformanceRepr {
+                    performer: ReferenceRepr::Key(p.performer.value()),
+                    link: LinkRepr {
+                        kind: "Sds".to_owned(),
+                        url: "sd".to_owned(),
+                    },
+                }),
+            })
+            .collect::<Vec<PerformanceRepr>>();
+        let publications = data
+            .publications
+            .iter()
+            .map(|p| ReferenceInPublucationRepr {
+                into: match expand {
+                    true => self
+                        .resolve_publication(p.into.value(), lang, false)
+                        .and_then(|repr| Ok(ReferenceRepr::Model(repr)))
+                        .unwrap_or(ReferenceRepr::Unavailable),
+                    false => ReferenceRepr::Key(p.into.value()),
+                },
+                page: p.page,
+            })
+            .collect::<Vec<ReferenceInPublucationRepr>>();
+
+        let category = self.resolve_taxonomy(data.category.value(), lang)?;
+        let contribution = match &data.contribution {
+            Some(c) => match c.value() {
+                Contribution::Composition => ContributionRepr::Composition,
+                Contribution::Modification(id) => ContributionRepr::Modification {
+                    name: self
+                        .resolve_composition(
+                            CollectionKey::Composition(id.to_owned()),
+                            lang,
+                            false,
+                        )?
+                        .name,
+                    id: CollectionKey::Composition(id),
+                },
+                Contribution::Translation(id) => ContributionRepr::Translation {
+                    name: self
+                        .resolve_composition(
+                            CollectionKey::Composition(id.to_owned()),
+                            lang,
+                            false,
+                        )?
+                        .name,
+                    id: CollectionKey::Composition(id),
+                },
+            },
+            None => ContributionRepr::Unknown,
+        };
+
+        Ok(CompositionRepr {
+            id: id,
+            name: data.name.value(lang.to_owned()),
+            author: author.into(),
+            text: text.into(),
+            performances: performances,
+            publications: publications,
+            category: category.into(),
+            tags: vec![],
+            contribution: contribution,
+        })
+    }
+}
+
+impl Cufarul for CufarulRepository {
+    fn model_by_id(&self, id: CollectionKey, lang: Option<Lang>) -> Result<ModelReprRef> {
+        let repr: Box<dyn ModelRepr> = match id {
+            CollectionKey::Person(_) => self.resolve_person(id, &lang, true)?.clone_boxed(),
+            CollectionKey::Composition(_) => {
+                self.resolve_composition(id, &lang, true)?.clone_boxed()
+            }
+            CollectionKey::Text(_) => self.resolve_text(id, &lang, true)?.clone_boxed(),
+            CollectionKey::Publication(_) => {
+                self.resolve_publication(id, &lang, true)?.clone_boxed()
+            }
+            CollectionKey::Taxonomy(_) => self.resolve_taxonomy(id, &lang)?.clone_boxed(),
+            _ => todo!(),
+        };
+
+        Ok(repr)
+    }
+
+    fn compositions(&self, lang: Option<Lang>) -> Vec<CompositionRepr> {
+        self.db
+            .node_ids()
+            .filter_map(|id| match id {
+                CollectionKey::Composition(_) => self.resolve_composition(id, &lang, true).ok(),
+                _ => None,
+            })
+            .collect::<Vec<CompositionRepr>>()
+    }
+
+    fn people(&self, lang: Option<Lang>) -> Vec<PersonRepr> {
+        self.db
+            .node_ids()
+            .filter_map(|id| match id {
+                CollectionKey::Person(_) => self.resolve_person(id, &lang, true).ok(),
+                _ => None,
+            })
+            .collect::<Vec<PersonRepr>>()
+    }
+
+    fn texts(&self, lang: Option<Lang>) -> Vec<TextRepr> {
+        self.db
+            .node_ids()
+            .filter_map(|id| match id {
+                CollectionKey::Text(_) => self.resolve_text(id, &lang, true).ok(),
+                _ => None,
+            })
+            .collect::<Vec<TextRepr>>()
     }
 }

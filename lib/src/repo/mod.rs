@@ -12,7 +12,7 @@ mod error;
 mod index;
 mod spec;
 
-pub use self::core::Repository;
+pub use self::core::{Cufarul, Repository};
 pub use self::cufarul::CufarulRepository;
 pub use self::error::{Error, Result};
 pub use self::spec::RepositorySpec;

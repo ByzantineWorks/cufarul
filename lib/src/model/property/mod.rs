@@ -4,9 +4,9 @@ mod link;
 mod reference;
 mod translation;
 
-pub use self::contribution::ContributionProperty;
+pub use self::contribution::{Contribution, ContributionProperty};
 pub use self::generic::GenericProperty;
-pub use self::link::LinkProperty;
+pub use self::link::{ExternalLink, LinkProperty};
 pub use self::reference::ReferenceProperty;
 pub use self::translation::TranslatableProperty;
 

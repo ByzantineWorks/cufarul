@@ -10,6 +10,8 @@ pub enum Error {
     InvalidReference(String),
     IoError(std::io::Error),
     DeError(toml::de::Error),
+    NoData(String),
+    InternalError(&'static str),
 }
 
 impl Display for Error {
@@ -29,6 +31,8 @@ impl Display for Error {
             Self::MissingCollection(collection) => {
                 f.write_fmt(format_args!("missing collection directory: {collection}"))
             }
+            Self::NoData(id) => f.write_fmt(format_args!("no data for id: {id}")),
+            Self::InternalError(msg) => f.write_str(msg),
         }
     }
 }

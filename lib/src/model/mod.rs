@@ -13,5 +13,7 @@ pub use self::entity::{Composition, Model, Performance, Person, Publication, Tax
 pub use self::error::{Error, Result};
 pub use self::identity::CollectionKey;
 pub use self::identity::ReferenceKey;
+pub use self::property::{Contribution, ExternalLink};
+pub use self::serde::Lang;
 
 pub use self::entity::{from_file, into_traits};

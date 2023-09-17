@@ -1,5 +1,6 @@
 use super::{error::Result, index::RepoIndex};
 use crate::db::Database;
+use crate::model::{CollectionKey, CompositionRepr, Lang, ModelReprRef, PersonRepr, TextRepr};
 
 pub trait Repository {
     type DbType: Database;
@@ -10,4 +11,12 @@ pub trait Repository {
 
     // TODO: what to do with the error?
     fn sync(&mut self) -> crate::error::Result<()>;
+}
+
+pub trait Cufarul {
+    fn model_by_id(&self, id: CollectionKey, lang: Option<Lang>) -> Result<ModelReprRef>;
+
+    fn compositions(&self, lang: Option<Lang>) -> Vec<CompositionRepr>;
+    fn people(&self, lang: Option<Lang>) -> Vec<PersonRepr>;
+    fn texts(&self, lang: Option<Lang>) -> Vec<TextRepr>;
 }
