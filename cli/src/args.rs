@@ -3,14 +3,14 @@ use std::path::PathBuf;
 
 use crate::dump::DumpConfig;
 
-#[derive(Debug, FromArgs)]
+#[derive(Clone, Debug, FromArgs)]
 #[argh(subcommand)]
 pub enum Command {
     Dump(DumpConfig),
 }
 
 /// cufarul-cli
-#[derive(FromArgs)]
+#[derive(Clone, FromArgs)]
 pub struct Args {
     /// path to the repository root, defaults to the current working directory
     #[argh(option)]

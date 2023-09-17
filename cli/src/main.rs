@@ -9,8 +9,8 @@ mod dump;
 
 fn main() -> Result<()> {
     let args: Args = argh::from_env();
-    let res = match args.command {
-        Command::Dump(_) => dump(args),
+    let res = match &args.command {
+        Command::Dump(c) => dump(args.to_owned(), c.to_owned()),
     };
 
     match res {

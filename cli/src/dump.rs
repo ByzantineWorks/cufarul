@@ -8,11 +8,11 @@ use cufarul::{
 };
 
 /// dump contents of the database
-#[derive(Debug, FromArgs)]
+#[derive(Clone, Debug, FromArgs)]
 #[argh(subcommand, name = "dump")]
 pub struct DumpConfig {}
 
-pub fn dump(args: Args) -> Result<()> {
+pub fn dump(args: Args, _config: DumpConfig) -> Result<()> {
     let mut repo = RepositorySpec::from_path(
         args.repo
             .unwrap_or(std::env::current_dir().unwrap_or_default())
