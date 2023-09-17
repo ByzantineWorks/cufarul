@@ -1,4 +1,4 @@
-use super::{error::Result, index::Index};
+use super::{error::Result, index::RepoIndex};
 use crate::db::Database;
 
 pub trait Repository {
@@ -6,7 +6,7 @@ pub trait Repository {
 
     fn db_mut(&mut self) -> &mut Self::DbType;
     fn db(&self) -> &Self::DbType;
-    fn index(&self) -> Result<Index>;
+    fn index(&self) -> Result<RepoIndex>;
 
     // TODO: what to do with the error?
     fn sync(&mut self) -> crate::error::Result<()>;

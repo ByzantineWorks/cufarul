@@ -1,7 +1,7 @@
 use super::{
     core::Repository,
     error::{Error, Result},
-    index::{Index, LoadPath},
+    index::{LoadPath, RepoIndex},
     spec::RepositorySpec,
     REPOSITORY_SUPPORTED_VERSION,
 };
@@ -31,8 +31,8 @@ impl Repository for CufarulRepository {
         &mut self.db
     }
 
-    fn index(&self) -> Result<Index> {
-        let mut index = Index::new();
+    fn index(&self) -> Result<RepoIndex> {
+        let mut index = RepoIndex::new();
 
         for collection in CollectionKey::into_iter() {
             let base = self.spec.root().join(collection);
@@ -54,7 +54,7 @@ impl Repository for CufarulRepository {
                             _ => None,
                         }
                     })
-                    .collect::<Index>()
+                    .collect::<RepoIndex>()
                 })?;
 
             index.append(&mut fragment);

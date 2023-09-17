@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-pub type Index = Vec<LoadPath>;
+pub type RepoIndex = Vec<LoadPath>;
 pub struct LoadPath {
     collection: String,
     id: String,
