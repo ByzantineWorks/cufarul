@@ -19,7 +19,7 @@ impl Model for Taxonomy {
     fn references(&self) -> Vec<ReferenceKey> {
         if let Some(other) = &self.parent {
             let parent_id = other.value();
-            return vec![ReferenceKey::OfKind(TaxonomyId::new(parent_id.id()))];
+            return vec![ReferenceKey::ChildOf(TaxonomyId::new(parent_id.id()))];
         }
 
         vec![]

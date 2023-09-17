@@ -12,10 +12,14 @@ pub enum ReferenceKey {
     UsedIn(super::CompositionId),
     Published(super::CompositionId),
     PublishedBy(super::PublicationId),
-    Performed(super::PerformanceId),
+    Performed(super::CompositionId),
     PerformedBy(super::PersonId),
-    OfKind(super::TaxonomyId),
+    PerformerOf(super::PerformanceId),
+    PerformanceBy(super::PersonId),
+    ChildOf(super::TaxonomyId),
     ParentOf(super::TaxonomyId),
+    OfKind(super::TaxonomyId),
+    Includes(super::CompositionId),
 }
 
 impl Display for ReferenceKey {
@@ -31,8 +35,12 @@ impl Display for ReferenceKey {
             Self::PublishedBy(_) => "published-by",
             Self::Performed(_) => "performed",
             Self::PerformedBy(_) => "performed-by",
-            Self::OfKind(_) => "of-kind",
+            Self::PerformerOf(_) => "performer-of",
+            Self::PerformanceBy(_) => "performance-by",
+            Self::ChildOf(_) => "of-kind",
             Self::ParentOf(_) => "parent-of",
+            Self::OfKind(_) => "of-kind",
+            Self::Includes(_) => "includes",
         };
 
         f.write_fmt(format_args!("{} -> {}", predicate, self.object()))
@@ -44,14 +52,18 @@ impl ReferenceIdentity<CollectionKey> for ReferenceKey {
     fn object(&self) -> CollectionKey {
         match self {
             Self::Authored(id) | Self::UsedIn(id) => CollectionKey::Composition(id.to_owned()),
-            Self::AuthoredBy(id) | Self::WrittenBy(id) | Self::PerformedBy(id) => {
-                CollectionKey::Person(id.to_owned())
-            }
-            Self::Published(id) => CollectionKey::Composition(id.to_owned()),
+            Self::AuthoredBy(id)
+            | Self::WrittenBy(id)
+            | Self::PerformedBy(id)
+            | Self::PerformanceBy(id) => CollectionKey::Person(id.to_owned()),
+            Self::Published(id) | Self::Includes(id) => CollectionKey::Composition(id.to_owned()),
             Self::PublishedBy(id) => CollectionKey::Publication(id.to_owned()),
-            Self::Performed(id) => CollectionKey::Performance(id.to_owned()),
+            Self::Performed(id) => CollectionKey::Composition(id.to_owned()),
             Self::UsesText(id) | Self::Wrote(id) => CollectionKey::Text(id.to_owned()),
-            Self::OfKind(id) | Self::ParentOf(id) => CollectionKey::Taxonomy(id.to_owned()),
+            Self::ChildOf(id) | Self::ParentOf(id) | Self::OfKind(id) => {
+                CollectionKey::Taxonomy(id.to_owned())
+            }
+            Self::PerformerOf(id) => CollectionKey::Performance(id.to_owned()),
         }
     }
 
@@ -67,8 +79,12 @@ impl ReferenceIdentity<CollectionKey> for ReferenceKey {
             Self::PublishedBy(_) => Self::Published(object.try_into()?),
             Self::Performed(_) => Self::PerformedBy(object.try_into()?),
             Self::PerformedBy(_) => Self::Performed(object.try_into()?),
-            Self::OfKind(_) => Self::ParentOf(object.try_into()?),
-            Self::ParentOf(_) => Self::OfKind(object.try_into()?),
+            Self::PerformerOf(_) => Self::PerformanceBy(object.try_into()?),
+            Self::PerformanceBy(_) => Self::PerformerOf(object.try_into()?),
+            Self::ChildOf(_) => Self::ParentOf(object.try_into()?),
+            Self::ParentOf(_) => Self::ChildOf(object.try_into()?),
+            Self::OfKind(_) => Self::Includes(object.try_into()?),
+            Self::Includes(_) => Self::OfKind(object.try_into()?),
         })
     }
 }
