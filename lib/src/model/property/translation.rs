@@ -26,12 +26,13 @@ impl From<TranslationMap> for TranslationMapInternal {
 }
 
 impl TranslationMap {
-    pub fn translation(&self, lang: Lang) -> Option<&NonEmptyString> {
-        self.0.get(&lang)
+    pub fn translation(&self, lang: &Lang) -> Option<String> {
+        self.0.get(&lang).map(|v| v.value().to_owned())
     }
 
-    pub fn any_translation(&self) -> Option<&NonEmptyString> {
-        self.0.iter().next().and_then(|(_, res)| Some(res))
+    pub fn any_translation(&self) -> String {
+        // Safely unwrap since a translation map contains at least one translation
+        self.0.iter().next().unwrap().1.value().to_owned()
     }
 }
 
@@ -45,11 +46,13 @@ pub struct TranslatableProperty {
 }
 
 impl TranslatableProperty {
-    pub fn value(&self, lang: Option<Lang>) -> Option<NonEmptyString> {
+    pub fn value(&self, lang: Option<Lang>) -> String {
         match lang.or(self.default_lang.to_owned()) {
-            Some(lang) => self.data.translation(lang),
+            Some(lang) => self
+                .data
+                .translation(&lang)
+                .unwrap_or(self.data.any_translation()),
             None => self.data.any_translation(),
         }
-        .and_then(|res| Some(res.to_owned()))
     }
 }
