@@ -15,6 +15,7 @@ pub enum Error {
     InvalidExternalLink(String, String),
     InvalidContribution(String),
     InvalidCollectionKey(String),
+    InvalidMode(u8),
 }
 
 impl Display for Error {
@@ -44,6 +45,9 @@ impl Display for Error {
             Self::InvalidCollectionKey(key) => {
                 f.write_fmt(format_args!("{key}: unsupported collection key"))
             }
+            Self::InvalidMode(mode) => f.write_fmt(format_args!(
+                "invalid mode: {mode} (expected mode be between 1 and 8)"
+            )),
         }
     }
 }

@@ -5,10 +5,10 @@ use super::publication::Reference;
 use super::{Model, ReferenceKey};
 use crate::db::NodeLike;
 use crate::model::identity::{PublicationId, TaxonomyId, TextId};
-use crate::model::property::{ContributionProperty, TranslatableProperty};
-use serde::{Deserialize, Serialize};
+use crate::model::property::{ContributionProperty, ModeProperty, TranslatableProperty};
+use serde::Deserialize;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Composition {
     pub name: TranslatableProperty,
@@ -19,6 +19,7 @@ pub struct Composition {
     pub category: ReferenceProperty,
     pub tags: Option<Vec<ReferenceProperty>>,
     pub contribution: Option<ContributionProperty>,
+    pub musical: ModeProperty,
 }
 
 impl Model for Composition {

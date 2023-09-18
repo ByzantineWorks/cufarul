@@ -1,7 +1,7 @@
 use crate::model::CollectionKey;
 
 use super::{
-    ModelRepr, PerformanceRepr, PersonRepr, ReferenceInPublucationRepr, ReferenceRepr,
+    ModelRepr, MusicalRepr, PerformanceRepr, PersonRepr, ReferenceInPublucationRepr, ReferenceRepr,
     TaxonomyRepr, TextRepr,
 };
 use serde::Serialize;
@@ -17,6 +17,7 @@ pub struct CompositionRepr {
     pub category: TaxonomyRepr,
     pub tags: Vec<TaxonomyRepr>,
     pub contribution: ContributionRepr,
+    pub musical: MusicalRepr,
 }
 
 #[derive(Clone, Serialize)]

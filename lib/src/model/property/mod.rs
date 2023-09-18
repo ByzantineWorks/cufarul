@@ -1,12 +1,14 @@
 mod contribution;
 mod generic;
 mod link;
+mod mode;
 mod reference;
 mod translation;
 
 pub use self::contribution::{Contribution, ContributionProperty};
 pub use self::generic::GenericProperty;
 pub use self::link::{ExternalLink, LinkProperty};
+pub use self::mode::ModeProperty;
 pub use self::reference::ReferenceProperty;
 pub use self::translation::TranslatableProperty;
 

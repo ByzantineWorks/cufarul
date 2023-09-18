@@ -9,12 +9,13 @@ use crate::{
     db::{Database, Datastore, EdgeId, ReferenceIdentity},
     model::{
         AsBoxModelRepr, CollectionKey, Composition, CompositionRepr, Contribution,
-        ContributionRepr, Lang, LinkRepr, ModelRepr, ModelReprRef, Performance, PerformanceRepr,
-        Person, PersonRepr, Publication, PublicationRepr, ReferenceInPublucationRepr, ReferenceKey,
-        ReferenceRepr, Taxonomy, TaxonomyRepr, Text, TextRepr,
+        ContributionRepr, Lang, LinkRepr, ModeRepr, ModelRepr, ModelReprRef, MusicalRepr,
+        Performance, PerformanceRepr, Person, PersonRepr, Publication, PublicationRepr,
+        ReferenceInPublucationRepr, ReferenceKey, ReferenceRepr, Taxonomy, TaxonomyRepr, Text,
+        TextRepr,
     },
 };
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 type ReferenceList = Vec<EdgeId<CollectionKey, ReferenceKey>>;
 
@@ -401,6 +402,13 @@ impl CufarulRepository {
             None => ContributionRepr::Unknown,
         };
 
+        let musical = MusicalRepr {
+            base: data.musical.base.to_string(),
+            mode: data.musical.mode.to_string(),
+            index: data.musical.mode.to_owned().into(),
+            modulations: vec![],
+        };
+
         Ok(CompositionRepr {
             id: id,
             name: data.name.value(lang.to_owned()),
@@ -411,6 +419,7 @@ impl CufarulRepository {
             category: category.into(),
             tags: vec![],
             contribution: contribution,
+            musical: musical,
         })
     }
 }
@@ -461,5 +470,23 @@ impl Cufarul for CufarulRepository {
                 _ => None,
             })
             .collect::<Vec<TextRepr>>()
+    }
+
+    fn modes(&self) -> HashMap<u8, ModeRepr> {
+        let mut modes = HashMap::<u8, ModeRepr>::with_capacity(8);
+
+        self.compositions(None).iter().for_each(|c| {
+            modes
+                .entry(c.musical.index)
+                .or_insert(ModeRepr {
+                    name: c.musical.mode.to_owned(),
+                    index: c.musical.index,
+                    compositions: vec![],
+                })
+                .compositions
+                .push(ReferenceRepr::Model(c.to_owned()))
+        });
+
+        modes
     }
 }

@@ -1,5 +1,6 @@
 mod composition;
 mod link;
+mod mode;
 mod performance;
 mod person;
 mod publication;
@@ -11,6 +12,7 @@ use serde::Serialize;
 
 pub use self::composition::{CompositionRepr, ContributionRepr};
 pub use self::link::LinkRepr;
+pub use self::mode::{ModeRepr, MusicalRepr};
 pub use self::performance::PerformanceRepr;
 pub use self::person::PersonRepr;
 pub use self::publication::{PublicationRepr, ReferenceInPublucationRepr};
