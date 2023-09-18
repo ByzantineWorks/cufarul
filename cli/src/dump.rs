@@ -3,7 +3,7 @@ use argh::FromArgs;
 use cufarul::{
     db::Database,
     error::Result,
-    model::{CollectionKey, Composition, Lang, Model, Person, Publication, Taxonomy, Text},
+    model::{CollectionKey, Lang},
     repo::{Cufarul, CufarulRepository, Repository, RepositorySpec},
 };
 
@@ -17,36 +17,9 @@ pub struct DumpConfig {
 }
 
 fn dump_all(repo: CufarulRepository) -> Result<()> {
-    for (id, node) in repo.db().nodes_iter() {
-        let data = node.data();
-        let object: &dyn Model = match id {
-            CollectionKey::Person(_) => data
-                .as_any()
-                .downcast_ref::<Person>()
-                .expect("internal error"),
-            CollectionKey::Composition(_) => data
-                .as_any()
-                .downcast_ref::<Composition>()
-                .expect("internal error"),
-            CollectionKey::Publication(_) => data
-                .as_any()
-                .downcast_ref::<Publication>()
-                .expect("internal error"),
-            CollectionKey::Performance(_) => data
-                .as_any()
-                .downcast_ref::<Composition>()
-                .expect("internal error"),
-            CollectionKey::Text(_) => data
-                .as_any()
-                .downcast_ref::<Text>()
-                .expect("internal error"),
-            CollectionKey::Taxonomy(_) => data
-                .as_any()
-                .downcast_ref::<Taxonomy>()
-                .expect("internal error"),
-        };
-
-        let out = serde_json::to_string(object).expect("error serializing");
+    for id in repo.db().node_ids() {
+        let data = repo.model_by_id(id.to_owned(), None)?;
+        let out = serde_json::to_string(&data).expect("error serializing");
         println!("{id}: {out}");
     }
 
