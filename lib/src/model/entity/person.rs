@@ -1,5 +1,5 @@
 use super::property::{LinkProperty, TranslatableProperty};
-use super::{Model, ReferenceKey};
+use super::{Model, Query, ReferenceKey};
 use crate::db::NodeLike;
 use serde::{Deserialize, Serialize};
 
@@ -19,5 +19,11 @@ impl Model for Person {
 impl NodeLike for Person {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl Query for Person {
+    fn contains(&self, value: String) -> bool {
+        self.name.contains(value)
     }
 }

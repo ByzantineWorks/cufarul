@@ -1,4 +1,4 @@
-use super::Model;
+use super::{Model, Query};
 use crate::{
     db::NodeLike,
     model::{
@@ -22,8 +22,15 @@ impl Model for Performance {
         vec![ReferenceKey::PerformedBy(PersonId::new(author_id.key()))]
     }
 }
+
 impl NodeLike for Performance {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl Query for Performance {
+    fn contains(&self, value: String) -> bool {
+        false
     }
 }

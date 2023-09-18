@@ -22,8 +22,15 @@ use super::property;
 use super::ReferenceKey;
 use crate::db::NodeLike;
 
-pub trait Model: NodeLike {
+pub trait Model: NodeLike
+where
+    Self: Query,
+{
     fn references(&self) -> Vec<ReferenceKey>;
+}
+
+pub trait Query {
+    fn contains(&self, value: String) -> bool;
 }
 
 pub fn from_file<T>(path: std::path::PathBuf) -> error::Result<Arc<T>>

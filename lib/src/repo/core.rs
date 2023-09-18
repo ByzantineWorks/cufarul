@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::{error::Result, index::RepoIndex};
 use crate::db::Database;
 use crate::model::{
-    CollectionKey, CompositionRepr, Lang, ModeRepr, ModelReprRef, PersonRepr, TextRepr,
+    CollectionKey, CompositionRepr, Lang, ModeRepr, ModelRepr, ModelReprRef, PersonRepr, TextRepr,
 };
 
 pub trait Repository {
@@ -24,4 +24,7 @@ pub trait Cufarul {
     fn people(&self, lang: Option<Lang>) -> Vec<PersonRepr>;
     fn texts(&self, lang: Option<Lang>) -> Vec<TextRepr>;
     fn modes(&self) -> HashMap<u8, ModeRepr>;
+
+    // Demo only
+    fn query(&self, collection: Option<String>, keyword: String) -> Vec<Box<dyn ModelRepr>>;
 }

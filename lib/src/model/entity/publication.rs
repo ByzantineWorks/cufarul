@@ -1,4 +1,4 @@
-use super::Model;
+use super::{Model, Query};
 use crate::{
     db::NodeLike,
     model::{
@@ -37,5 +37,11 @@ impl Model for Publication {
 impl NodeLike for Publication {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl Query for Publication {
+    fn contains(&self, value: String) -> bool {
+        self.name.contains(value)
     }
 }

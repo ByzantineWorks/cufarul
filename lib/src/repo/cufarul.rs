@@ -6,10 +6,10 @@ use super::{
     REPOSITORY_SUPPORTED_VERSION,
 };
 use crate::{
-    db::{Database, Datastore, EdgeId, ReferenceIdentity},
+    db::{Database, Datastore, EdgeId, Node, ReferenceIdentity},
     model::{
         AsBoxModelRepr, CollectionKey, Composition, CompositionRepr, Contribution,
-        ContributionRepr, Lang, LinkRepr, ModeRepr, ModelRepr, ModelReprRef, MusicalRepr,
+        ContributionRepr, Lang, LinkRepr, ModeRepr, Model, ModelRepr, ModelReprRef, MusicalRepr,
         Performance, PerformanceRepr, Person, PersonRepr, Publication, PublicationRepr,
         ReferenceInPublucationRepr, ReferenceKey, ReferenceRepr, Taxonomy, TaxonomyRepr, Text,
         TextRepr,
@@ -144,6 +144,33 @@ impl CufarulRepository {
 
     pub fn spec(&self) -> &RepositorySpec {
         &self.spec
+    }
+
+    fn to_dyn_model(node: Node<CollectionKey, ReferenceKey>) -> Arc<dyn Model> {
+        match node.id() {
+            CollectionKey::Person(_) => node.data().as_any_arc().downcast::<Person>().expect("nok"),
+            CollectionKey::Composition(_) => node
+                .data()
+                .as_any_arc()
+                .downcast::<Composition>()
+                .expect("nok"),
+            CollectionKey::Text(_) => node.data().as_any_arc().downcast::<Text>().expect("nok"),
+            CollectionKey::Taxonomy(_) => node
+                .data()
+                .as_any_arc()
+                .downcast::<Taxonomy>()
+                .expect("nok"),
+            CollectionKey::Publication(_) => node
+                .data()
+                .as_any_arc()
+                .downcast::<Publication>()
+                .expect("nok"),
+            CollectionKey::Performance(_) => node
+                .data()
+                .as_any_arc()
+                .downcast::<Performance>()
+                .expect("nok"),
+        }
     }
 
     fn resolve_person(
@@ -488,5 +515,29 @@ impl Cufarul for CufarulRepository {
         });
 
         modes
+    }
+
+    fn query(&self, collection: Option<String>, keyword: String) -> Vec<Box<dyn ModelRepr>> {
+        self.db
+            .node_ids()
+            .filter_map(|id| {
+                match collection
+                    .as_ref()
+                    .map_or(true, |value| id.collection().eq(value))
+                {
+                    true => {
+                        self.db
+                            .node_by_id(id.to_owned())
+                            .and_then(|node| {
+                                match Self::to_dyn_model(node).contains(keyword.to_owned()) {
+                                    true => self.model_by_id(id, None).ok(),
+                                    false => None,
+                                }
+                            })
+                    }
+                    false => None,
+                }
+            })
+            .collect()
     }
 }

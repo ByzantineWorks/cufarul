@@ -2,7 +2,7 @@ use super::identity::PersonId;
 use super::performance::Performance;
 use super::property::ReferenceProperty;
 use super::publication::Reference;
-use super::{Model, ReferenceKey};
+use super::{Model, Query, ReferenceKey};
 use crate::db::NodeLike;
 use crate::model::identity::{PublicationId, TaxonomyId, TextId};
 use crate::model::property::{ContributionProperty, ModeProperty, TranslatableProperty};
@@ -54,8 +54,15 @@ impl Model for Composition {
         refs
     }
 }
+
 impl NodeLike for Composition {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl Query for Composition {
+    fn contains(&self, value: String) -> bool {
+        self.name.contains(value)
     }
 }

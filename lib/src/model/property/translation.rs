@@ -1,3 +1,5 @@
+use crate::model::Query;
+
 use super::{Error, Lang, NonEmptyString, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -54,5 +56,16 @@ impl TranslatableProperty {
                 .unwrap_or(self.data.any_translation()),
             None => self.data.any_translation(),
         }
+    }
+}
+
+impl Query for TranslatableProperty {
+    fn contains(&self, value: String) -> bool {
+        self.data.0.values().any(|t| {
+            t.value()
+                .to_ascii_lowercase()
+                .contains(&value.to_ascii_lowercase())
+                || t.value().to_lowercase().contains(&value.to_lowercase())
+        })
     }
 }
