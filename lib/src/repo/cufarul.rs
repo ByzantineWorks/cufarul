@@ -151,7 +151,6 @@ impl CufarulRepository {
         lang: &Option<Lang>,
         expand: bool,
     ) -> Result<PersonRepr> {
-        println!("Resolving {id}...");
         let node = self
             .db
             .node_by_id(id.to_owned())
@@ -168,7 +167,6 @@ impl CufarulRepository {
 
         if expand {
             for reference in node.references() {
-                println!("\tResolving reference {}", reference.to_string());
                 match reference {
                     ReferenceKey::Authored(id) => {
                         compositions.push(self.resolve_composition(
@@ -246,7 +244,6 @@ impl CufarulRepository {
         lang: &Option<Lang>,
         expand: bool,
     ) -> Result<PublicationRepr> {
-        println!("Resolving {id}...");
         let node = self
             .db
             .node_by_id(id.to_owned())
@@ -290,7 +287,6 @@ impl CufarulRepository {
     }
 
     fn resolve_taxonomy(&self, id: CollectionKey, lang: &Option<Lang>) -> Result<TaxonomyRepr> {
-        println!("Resolving {id}...");
         let data = self
             .db
             .node_by_id(id.to_owned())
@@ -329,7 +325,6 @@ impl CufarulRepository {
         lang: &Option<Lang>,
         expand: bool,
     ) -> Result<CompositionRepr> {
-        println!("Resolving {id}...");
         let data = self
             .db
             .node_by_id(id.to_owned())

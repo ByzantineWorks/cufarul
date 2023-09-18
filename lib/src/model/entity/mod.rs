@@ -22,10 +22,9 @@ use super::property;
 use super::ReferenceKey;
 use crate::db::NodeLike;
 
-pub trait Model: NodeLike + erased_serde::Serialize {
+pub trait Model: NodeLike {
     fn references(&self) -> Vec<ReferenceKey>;
 }
-erased_serde::serialize_trait_object!(Model);
 
 pub fn from_file<T>(path: std::path::PathBuf) -> error::Result<Arc<T>>
 where
