@@ -20,7 +20,7 @@ impl Model for Text {
     fn references(&self) -> Vec<ReferenceKey> {
         if let Some(author) = &self.author {
             let author_id = author.value();
-            return vec![ReferenceKey::WrittenBy(PersonId::new(author_id.id()))];
+            return vec![ReferenceKey::WrittenBy(PersonId::new(author_id.key()))];
         }
 
         vec![]

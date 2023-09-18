@@ -19,7 +19,7 @@ pub struct Performance {
 impl Model for Performance {
     fn references(&self) -> Vec<ReferenceKey> {
         let author_id = self.performer.value();
-        vec![ReferenceKey::PerformedBy(PersonId::new(author_id.id()))]
+        vec![ReferenceKey::PerformedBy(PersonId::new(author_id.key()))]
     }
 }
 impl NodeLike for Performance {

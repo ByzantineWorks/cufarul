@@ -30,9 +30,9 @@ impl Model for Composition {
         let text_id = self.text.value();
         let category_id = self.category.value();
         refs.extend_from_slice(&[
-            ReferenceKey::AuthoredBy(PersonId::new(author_id.id())),
-            ReferenceKey::UsesText(TextId::new(text_id.id())),
-            ReferenceKey::OfKind(TaxonomyId::new(category_id.id())),
+            ReferenceKey::AuthoredBy(PersonId::new(author_id.key())),
+            ReferenceKey::UsesText(TextId::new(text_id.key())),
+            ReferenceKey::OfKind(TaxonomyId::new(category_id.key())),
         ]);
 
         for entry in &self.performances {
@@ -41,13 +41,13 @@ impl Model for Composition {
 
         refs.extend(self.publications.iter().map(|e| {
             let publication_id = e.into.value();
-            ReferenceKey::PublishedBy(PublicationId::new(publication_id.id()))
+            ReferenceKey::PublishedBy(PublicationId::new(publication_id.key()))
         }));
 
         if let Some(tags) = &self.tags {
             refs.extend(tags.iter().map(|e| {
                 let id = e.value();
-                ReferenceKey::OfKind(TaxonomyId::new(id.id()))
+                ReferenceKey::OfKind(TaxonomyId::new(id.key()))
             }));
         }
 

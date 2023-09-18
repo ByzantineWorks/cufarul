@@ -27,7 +27,7 @@ impl Model for Publication {
     fn references(&self) -> Vec<ReferenceKey> {
         if let Some(author) = &self.author {
             let author_id = author.value();
-            return vec![ReferenceKey::AuthoredBy(PersonId::new(author_id.id()))];
+            return vec![ReferenceKey::AuthoredBy(PersonId::new(author_id.key()))];
         };
 
         vec![]

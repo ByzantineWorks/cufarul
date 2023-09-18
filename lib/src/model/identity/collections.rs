@@ -93,12 +93,20 @@ macro_rules! EntitiyKey {
                 }
             }
 
-            pub fn id(&self) -> String {
+            pub fn to_parts(&self) -> (String, String) {
                 match self {
                     $(
-                        Self::$entry(id) => id.to_string(),
+                        Self::$entry(id) => ($id.to_owned(), id.to_string()),
                     )+
                 }
+            }
+
+            pub fn collection(&self) -> String {
+                self.to_parts().0
+            }
+
+            pub fn key(&self) -> String {
+                self.to_parts().1
             }
         }
     };
