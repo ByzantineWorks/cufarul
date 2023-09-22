@@ -30,7 +30,7 @@ impl NodeLike for Performance {
 }
 
 impl Query for Performance {
-    fn contains(&self, value: String) -> bool {
+    fn contains(&self, _value: String) -> bool {
         false
     }
 }

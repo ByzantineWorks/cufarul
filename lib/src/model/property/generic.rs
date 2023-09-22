@@ -11,7 +11,7 @@ impl<T> GenericProperty<T>
 where
     T: Clone,
 {
-    pub fn value(&self) -> T {
+    pub fn _value(&self) -> T {
         self.data.to_owned()
     }
 }

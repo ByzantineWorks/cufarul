@@ -20,6 +20,10 @@ pub enum ReferenceKey {
     ParentOf(super::TaxonomyId),
     OfKind(super::TaxonomyId),
     Includes(super::CompositionId),
+    // A text can be part of another broader text, e.g. a cheruvikon is part of
+    // the Divine Liturgy.
+    PartOf(super::TextId, Option<String>),
+    MasterTextOf(super::TextId, Option<String>),
 }
 
 impl Display for ReferenceKey {
@@ -41,6 +45,8 @@ impl Display for ReferenceKey {
             Self::ParentOf(_) => "parent-of",
             Self::OfKind(_) => "of-kind",
             Self::Includes(_) => "includes",
+            Self::PartOf(_, _) => "part-of",
+            Self::MasterTextOf(_, _) => "master-text-of",
         };
 
         f.write_fmt(format_args!("{} -> {}", predicate, self.object()))
@@ -59,7 +65,10 @@ impl ReferenceIdentity<CollectionKey> for ReferenceKey {
             Self::Published(id) | Self::Includes(id) => CollectionKey::Composition(id.to_owned()),
             Self::PublishedBy(id) => CollectionKey::Publication(id.to_owned()),
             Self::Performed(id) => CollectionKey::Composition(id.to_owned()),
-            Self::UsesText(id) | Self::Wrote(id) => CollectionKey::Text(id.to_owned()),
+            Self::UsesText(id)
+            | Self::Wrote(id)
+            | Self::PartOf(id, _)
+            | Self::MasterTextOf(id, _) => CollectionKey::Text(id.to_owned()),
             Self::ChildOf(id) | Self::ParentOf(id) | Self::OfKind(id) => {
                 CollectionKey::Taxonomy(id.to_owned())
             }
@@ -85,6 +94,8 @@ impl ReferenceIdentity<CollectionKey> for ReferenceKey {
             Self::ParentOf(_) => Self::ChildOf(object.try_into()?),
             Self::OfKind(_) => Self::Includes(object.try_into()?),
             Self::Includes(_) => Self::OfKind(object.try_into()?),
+            Self::PartOf(_, var) => Self::MasterTextOf(object.try_into()?, var.to_owned()),
+            Self::MasterTextOf(_, var) => Self::PartOf(object.try_into()?, var.to_owned()),
         })
     }
 }
