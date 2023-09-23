@@ -19,7 +19,7 @@ pub struct DumpConfig {
 fn dump_all(repo: CufarulRepository) -> Result<()> {
     for id in repo.db().node_ids() {
         let data = repo.model_by_id(id.to_owned(), None)?;
-        let out = serde_json::to_string(&data).expect("error serializing");
+        let out = serde_json::to_string_pretty(&data).expect("error serializing");
         println!("{id}: {out}");
     }
 
