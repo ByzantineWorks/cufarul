@@ -385,8 +385,16 @@ impl CufarulRepository {
             .downcast::<Composition>()
             .map_err(|_| Error::InternalError("incompatible"))?;
 
-        let author = self.resolve_person(data.author.value(), lang, false)?;
-        let text = self.resolve_text(data.text.value(), lang, false)?;
+        let author = match expand {
+            true => ReferenceRepr::Model(self.resolve_person(data.author.value(), lang, false)?),
+            false => ReferenceRepr::Key(data.author.value()),
+        };
+
+        let text = match expand {
+            true => ReferenceRepr::Model(self.resolve_text(data.text.value(), lang, false)?),
+            false => ReferenceRepr::Key(data.text.value()),
+        };
+
         let performances = data
             .performances
             .iter()
@@ -462,8 +470,8 @@ impl CufarulRepository {
         Ok(CompositionRepr {
             id: id,
             name: data.name.value(lang.to_owned()),
-            author: author.into(),
-            text: text.into(),
+            author: author,
+            text: text,
             performances: performances,
             publications: publications,
             category: category.into(),
