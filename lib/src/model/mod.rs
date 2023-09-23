@@ -7,7 +7,8 @@ mod serde;
 pub use self::entity::ser::{
     AsBoxModelRepr, AsModelRepr, CompositionRepr, ContributionRepr, LinkRepr, ModeRepr, ModelRepr,
     ModelReprRef, MusicalRepr, PerformanceRepr, PersonRepr, PublicationRepr,
-    ReferenceInPublucationRepr, ReferenceRepr, TaxonomyRepr, TextRepr,
+    ReferenceInPublucationRepr, ReferenceRepr, TaxonomyRepr, TextRepr, TextVariantMap,
+    TextVariantRepr, TextVariantType,
 };
 pub use self::entity::{
     Composition, Model, Performance, Person, Publication, Query, Taxonomy, Text,

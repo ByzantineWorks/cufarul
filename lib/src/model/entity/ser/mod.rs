@@ -17,7 +17,7 @@ pub use self::performance::PerformanceRepr;
 pub use self::person::PersonRepr;
 pub use self::publication::{PublicationRepr, ReferenceInPublucationRepr};
 pub use self::taxonomy::TaxonomyRepr;
-pub use self::text::TextRepr;
+pub use self::text::{TextRepr, TextVariantMap, TextVariantRepr, TextVariantType};
 
 pub type ModelReprRef = Box<dyn ModelRepr>;
 pub trait ModelRepr: Send + Sync + AsBoxModelRepr + AsModelRepr + erased_serde::Serialize {}

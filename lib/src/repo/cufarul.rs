@@ -12,10 +12,10 @@ use crate::{
         ContributionRepr, Lang, LinkRepr, ModeRepr, Model, ModelRepr, ModelReprRef, MusicalRepr,
         Performance, PerformanceRepr, Person, PersonRepr, Publication, PublicationRepr,
         ReferenceInPublucationRepr, ReferenceKey, ReferenceRepr, Taxonomy, TaxonomyRepr, Text,
-        TextRepr,
+        TextRepr, TextVariantMap,
     },
 };
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, vec};
 
 type ReferenceList = Vec<EdgeId<CollectionKey, ReferenceKey>>;
 
@@ -242,27 +242,50 @@ impl CufarulRepository {
             (_, None) => None,
         };
 
-        let compositions: Vec<ReferenceRepr<CompositionRepr>> = node
-            .references()
-            .filter_map(|reference| match reference {
-                ReferenceKey::UsedIn(id) => match expand {
+        let mut variants = TextVariantMap::new(data.name.value(lang.to_owned()));
+        data.variants
+            .clone()
+            .unwrap_or_default()
+            .iter()
+            .for_each(|(variant, data)| {
+                variants.push_variant(variant.to_owned().into(), data.name.value(lang.to_owned()));
+            });
+
+        node.references().for_each(|reference| match reference {
+            ReferenceKey::MasterTextOf(id, variant) => {
+                // TODO: validate model so this is not necessary
+                assert!(variants.has_variant(variant.to_owned().into()));
+                let variant_data = match expand {
+                    true => self
+                        .resolve_text(CollectionKey::Text(id.to_owned()), lang, false)
+                        .map(|text| ReferenceRepr::Model(text))
+                        .expect("ofof"),
+                    false => ReferenceRepr::Key(CollectionKey::Text(id.to_owned())),
+                };
+                variants.push_variant_subtext(variant.to_owned().into(), variant_data);
+            }
+            _ => (),
+        });
+
+        node.references().for_each(|referece| match referece {
+            ReferenceKey::UsedIn(id, var) => variants.push_variant_composition(
+                var.to_owned().into(),
+                match expand {
                     true => self
                         .resolve_composition(CollectionKey::Composition(id.to_owned()), lang, false)
                         .map(|repr| ReferenceRepr::Model(repr))
-                        .ok(),
-                    false => Some(ReferenceRepr::Key(CollectionKey::Composition(
-                        id.to_owned(),
-                    ))),
+                        .expect("ofof"),
+
+                    false => ReferenceRepr::Key(CollectionKey::Composition(id.to_owned())),
                 },
-                _ => None,
-            })
-            .collect();
+            ),
+            _ => {}
+        });
 
         Ok(TextRepr {
             id: id,
-            name: data.name.value(lang.to_owned()),
             author: author,
-            compositions: compositions,
+            variants: variants,
         })
     }
 

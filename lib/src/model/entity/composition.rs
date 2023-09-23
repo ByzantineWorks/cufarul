@@ -31,7 +31,7 @@ impl Model for Composition {
         let category_id = self.category.value();
         refs.extend_from_slice(&[
             ReferenceKey::AuthoredBy(PersonId::new(author_id.key())),
-            ReferenceKey::UsesText(TextId::new(text_id.key())),
+            ReferenceKey::UsesText(TextId::new(text_id.key()), self.text.variant().into()),
             ReferenceKey::OfKind(TaxonomyId::new(category_id.key())),
         ]);
 
