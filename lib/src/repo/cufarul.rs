@@ -12,7 +12,7 @@ use crate::{
         ContributionRepr, Lang, LinkRepr, ModeRepr, Model, ModelRepr, ModelReprRef, MusicalRepr,
         Performance, PerformanceRepr, Person, PersonRepr, Publication, PublicationRepr,
         ReferenceInPublucationRepr, ReferenceKey, ReferenceRepr, Taxonomy, TaxonomyRepr, Text,
-        TextRepr, TextVariantMap,
+        TextReferenceRepr, TextRepr, TextVariantMap, TextVariantType,
     },
 };
 use std::{collections::HashMap, sync::Arc, vec};
@@ -390,9 +390,15 @@ impl CufarulRepository {
             false => ReferenceRepr::Key(data.author.value()),
         };
 
-        let text = match expand {
-            true => ReferenceRepr::Model(self.resolve_text(data.text.value(), lang, false)?),
-            false => ReferenceRepr::Key(data.text.value()),
+        let text = TextReferenceRepr {
+            text: match expand {
+                true => ReferenceRepr::Model(self.resolve_text(data.text.value(), lang, false)?),
+                false => ReferenceRepr::Key(data.text.value()),
+            },
+            variant: match data.text.variant() {
+                Some(v) => TextVariantType::Variant(v),
+                None => TextVariantType::Main,
+            },
         };
 
         let performances = data

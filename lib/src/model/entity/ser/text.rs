@@ -40,7 +40,7 @@ impl From<TextVariantType> for String {
 impl Display for TextVariantType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Main => f.write_str("~~main~~"),
+            Self::Main => f.write_str("@"),
             Self::Variant(v) => f.write_str(v.as_str()),
         }
     }
@@ -61,6 +61,12 @@ pub struct TextRepr {
     pub id: CollectionKey,
     pub author: Option<ReferenceRepr<PersonRepr>>,
     pub variants: TextVariantMap,
+}
+
+#[derive(Clone, Serialize)]
+pub struct TextReferenceRepr {
+    pub text: ReferenceRepr<TextRepr>,
+    pub variant: TextVariantType,
 }
 
 impl ModelRepr for TextRepr {}

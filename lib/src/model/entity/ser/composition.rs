@@ -2,7 +2,7 @@ use crate::model::CollectionKey;
 
 use super::{
     ModelRepr, MusicalRepr, PerformanceRepr, PersonRepr, ReferenceInPublucationRepr, ReferenceRepr,
-    TaxonomyRepr, TextRepr,
+    TaxonomyRepr, TextReferenceRepr,
 };
 use serde::Serialize;
 
@@ -11,7 +11,7 @@ pub struct CompositionRepr {
     pub id: CollectionKey,
     pub name: String,
     pub author: ReferenceRepr<PersonRepr>,
-    pub text: ReferenceRepr<TextRepr>,
+    pub text: TextReferenceRepr,
     pub performances: Vec<PerformanceRepr>,
     pub publications: Vec<ReferenceInPublucationRepr>,
     pub category: TaxonomyRepr,
